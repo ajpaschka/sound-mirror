@@ -39,6 +39,7 @@ input[type=number]{width:70px;padding-right:0}
 button{font:500 13px var(--font);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:13px 22px;border-radius:0}
 button.on{background:var(--red);border-color:var(--red)}
 button.ghost{background:transparent;color:var(--ink)}
+.tp{display:flex;align-items:center;gap:10px}.tp b{font-weight:500;min-width:3.2em}.tp button{min-height:44px}
 :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .sec{border-top:2px solid var(--ink);margin-top:34px;padding-top:10px}
 .side{grid-column:1/4}.main{grid-column:4/13}
@@ -186,6 +187,7 @@ button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
         <label><span data-i="lbOut">Output (speakers)</span> <select id="dout"><option value="" data-i="dSpk">Default speakers</option></select></label>
         <label><span data-i="lbCs">Custom scale, in semitones</span> <input id="cs" type="text" value="0 2 3.5 5 7 9 10.5" title="Semitones above the key. Decimals give quarter tones, e.g. 3.5"></label>
         <label><span data-i="lbNl">Note length</span> <select id="nl"><option value="2" data-i="nl2">Short, 2 s</option><option value="4" selected data-i="nl4">Long, 4 s</option><option value="7" data-i="nl7">Very long, 7 s</option></select></label>
+        <label><span data-i="lbBpm">Tempo</span> <span class="tp"><button id="tap" type="button" class="ghost" data-i="tap">Tap tempo</button><b id="bpm">—</b><button id="tapx" type="button" class="ghost" data-i="tapClr" hidden>Clear</button></span></label>
         <label><span data-i="lbRg">Guide starts</span> <select id="rg"><option value="inst" data-i="rgInst">My voice / instrument range</option><option value="auto" data-i="rgAuto">Where I hum</option></select></label>
       </div></details>
       <select id="lang" class="lang" aria-label="Language"></select>
@@ -275,7 +277,7 @@ const LANGS = { en: "English", es: "Español", pt: "Português", hi: "हिन�
 const TR = {
 en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop", guide: "Guide me", guideStop: "Stop guide",
   lbInst: "Voice / instrument", lbKey: "Key", lbScale: "Scale", more: "More", lbIn: "Input (microphone)", lbOut: "Output (speakers)", lbCs: "Custom scale, in semitones", lbNl: "Note length", lbRg: "Guide starts",
-  dMic: "Default microphone", dSpk: "Default speakers", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
+  dMic: "Default microphone", dSpk: "Default speakers", lbBpm: "Tempo", tap: "Tap tempo", tapClr: "Clear", tapHint: "Tap the beat (one tap = one note)", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
   gVoice: "Voice", gStr: "Strings", gWW: "Woodwinds", gBr: "Brass", gKeys: "Keys and C instruments",
   tPitch: "Pitch", tMatch: "Match", tTones: "Overtones", noteTones: "Bars are the ideal overtones. Red: yours land off the line.",
   hold: "Hold within ±5¢", bestNone: "Your best shows here", best: "Best {0} s", foot: "Everything stays on this machine. The mic is never recorded.",
@@ -291,7 +293,7 @@ en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop
 
 hi: { tag: "आप कैसे सुनाई देते हैं / आपको कैसे सुनाई देना चाहिए", listen: "सुनो", stop: "रोकें", guide: "मार्गदर्शन", guideStop: "मार्गदर्शन रोकें",
   lbInst: "आवाज़ / वाद्य", lbKey: "की", lbScale: "स्केल", more: "और", lbIn: "इनपुट (माइक्रोफ़ोन)", lbOut: "आउटपुट (स्पीकर)", lbCs: "कस्टम स्केल (सेमीटोन में)", lbNl: "सुर की अवधि", lbRg: "गाइड कहाँ से शुरू हो",
-  dMic: "डिफ़ॉल्ट माइक्रोफ़ोन", dSpk: "डिफ़ॉल्ट स्पीकर", nl2: "छोटी, 2 सेकंड", nl4: "लंबी, 4 सेकंड", nl7: "बहुत लंबी, 7 सेकंड", rgInst: "मेरी आवाज़ / वाद्य की रेंज", rgAuto: "जहाँ मैं गुनगुनाऊँ", keyHum: "मेरी गुनगुनाहट से", browserOnly: "केवल ब्राउज़र डिफ़ॉल्ट",
+  dMic: "डिफ़ॉल्ट माइक्रोफ़ोन", dSpk: "डिफ़ॉल्ट स्पीकर", lbBpm: "गति", tap: "टैप करें", tapClr: "हटाएँ", tapHint: "ताल पर टैप करें (एक टैप = एक स्वर)", nl2: "छोटी, 2 सेकंड", nl4: "लंबी, 4 सेकंड", nl7: "बहुत लंबी, 7 सेकंड", rgInst: "मेरी आवाज़ / वाद्य की रेंज", rgAuto: "जहाँ मैं गुनगुनाऊँ", keyHum: "मेरी गुनगुनाहट से", browserOnly: "केवल ब्राउज़र डिफ़ॉल्ट",
   gVoice: "आवाज़", gStr: "तार वाद्य", gWW: "सुषिर वाद्य (वुडविंड)", gBr: "पीतल वाद्य", gKeys: "कीबोर्ड और C वाद्य",
   tPitch: "पिच", tMatch: "मिलान", tTones: "ओवरटोन", noteTones: "पट्टियाँ आदर्श ओवरटोन हैं। लाल: आपके ओवरटोन लाइन से हटकर हैं।",
   hold: "±5¢ के भीतर टिकें", bestNone: "आपका सर्वश्रेष्ठ यहाँ दिखेगा", best: "सर्वश्रेष्ठ {0} s", foot: "सब कुछ इसी डिवाइस पर रहता है। माइक कभी रिकॉर्ड नहीं होता।",
@@ -307,7 +309,7 @@ hi: { tag: "आप कैसे सुनाई देते हैं / आप�
 
 pt: { tag: "Como você soa / como você deveria soar", listen: "Ouvir", stop: "Parar", guide: "Guie-me", guideStop: "Parar guia",
   lbInst: "Voz / instrumento", lbKey: "Tom", lbScale: "Escala", more: "Mais", lbIn: "Entrada (microfone)", lbOut: "Saída (alto-falantes)", lbCs: "Escala personalizada, em semitons", lbNl: "Duração da nota", lbRg: "O guia começa",
-  dMic: "Microfone padrão", dSpk: "Alto-falantes padrão", nl2: "Curta, 2 s", nl4: "Longa, 4 s", nl7: "Muito longa, 7 s", rgInst: "Na minha extensão de voz / instrumento", rgAuto: "Onde eu cantarolo", keyHum: "A partir do meu cantarolar", browserOnly: "Só o padrão do navegador",
+  dMic: "Microfone padrão", dSpk: "Alto-falantes padrão", lbBpm: "Andamento", tap: "Tocar", tapClr: "limpar", tapHint: "Toque no ritmo (um toque = uma nota)", nl2: "Curta, 2 s", nl4: "Longa, 4 s", nl7: "Muito longa, 7 s", rgInst: "Na minha extensão de voz / instrumento", rgAuto: "Onde eu cantarolo", keyHum: "A partir do meu cantarolar", browserOnly: "Só o padrão do navegador",
   gVoice: "Voz", gStr: "Cordas", gWW: "Madeiras", gBr: "Metais", gKeys: "Teclados e instrumentos em dó",
   tPitch: "Altura", tMatch: "Comparar", tTones: "Harmônicos", noteTones: "As barras são os harmônicos ideais. Vermelho: os seus fogem da linha.",
   hold: "Segure em ±5¢", bestNone: "Seu melhor aparece aqui", best: "Melhor {0} s", foot: "Tudo fica neste aparelho. O microfone nunca grava.",
@@ -323,7 +325,7 @@ pt: { tag: "Como você soa / como você deveria soar", listen: "Ouvir", stop: "P
 
 es: { tag: "Cómo suenas / cómo deberías sonar", listen: "Escuchar", stop: "Detener", guide: "Guíame", guideStop: "Detener guía",
   lbInst: "Voz / instrumento", lbKey: "Tonalidad", lbScale: "Escala", more: "Más", lbIn: "Entrada (micrófono)", lbOut: "Salida (altavoces)", lbCs: "Escala personalizada, en semitonos", lbNl: "Duración de la nota", lbRg: "La guía empieza",
-  dMic: "Micrófono predeterminado", dSpk: "Altavoces predeterminados", nl2: "Corta, 2 s", nl4: "Larga, 4 s", nl7: "Muy larga, 7 s", rgInst: "En el rango de mi voz / instrumento", rgAuto: "Donde tarareo", keyHum: "Según mi tarareo", browserOnly: "Solo el predeterminado del navegador",
+  dMic: "Micrófono predeterminado", dSpk: "Altavoces predeterminados", lbBpm: "Tempo", tap: "Tocar", tapClr: "borrar", tapHint: "Toca el pulso (un toque = una nota)", nl2: "Corta, 2 s", nl4: "Larga, 4 s", nl7: "Muy larga, 7 s", rgInst: "En el rango de mi voz / instrumento", rgAuto: "Donde tarareo", keyHum: "Según mi tarareo", browserOnly: "Solo el predeterminado del navegador",
   gVoice: "Voz", gStr: "Cuerdas", gWW: "Maderas", gBr: "Metales", gKeys: "Teclados e instrumentos en do",
   tPitch: "Altura", tMatch: "Comparar", tTones: "Armónicos", noteTones: "Las barras son los armónicos ideales. Rojo: los tuyos se salen de la línea.",
   hold: "Mantén en ±5¢", bestNone: "Tu mejor marca aparece aquí", best: "Mejor {0} s", foot: "Todo se queda en este dispositivo. El micrófono nunca graba.",
@@ -339,7 +341,7 @@ es: { tag: "Cómo suenas / cómo deberías sonar", listen: "Escuchar", stop: "De
 
 mr: { tag: "तुम्ही कसे ऐकू येता / कसे ऐकू यायला हवे", listen: "ऐका", stop: "थांबवा", guide: "मार्गदर्शन", guideStop: "मार्गदर्शन थांबवा",
   lbInst: "आवाज / वाद्य", lbKey: "की", lbScale: "स्केल", more: "अधिक", lbIn: "इनपुट (मायक्रोफोन)", lbOut: "आउटपुट (स्पीकर)", lbCs: "सानुकूल स्केल (सेमीटोनमध्ये)", lbNl: "स्वराची लांबी", lbRg: "गाइड कुठून सुरू व्हावा",
-  dMic: "डीफॉल्ट मायक्रोफोन", dSpk: "डीफॉल्ट स्पीकर", nl2: "लहान, 2 सेकंद", nl4: "लांब, 4 सेकंद", nl7: "खूप लांब, 7 सेकंद", rgInst: "माझ्या आवाजाची / वाद्याची रेंज", rgAuto: "माझ्या गुणगुणण्यापासून", keyHum: "माझ्या गुणगुणण्यावरून", browserOnly: "फक्त ब्राउझर डीफॉल्ट",
+  dMic: "डीफॉल्ट मायक्रोफोन", dSpk: "डीफॉल्ट स्पीकर", lbBpm: "गती", tap: "टॅप करा", tapClr: "काढा", tapHint: "तालावर टॅप करा (एक टॅप = एक स्वर)", nl2: "लहान, 2 सेकंद", nl4: "लांब, 4 सेकंद", nl7: "खूप लांब, 7 सेकंद", rgInst: "माझ्या आवाजाची / वाद्याची रेंज", rgAuto: "माझ्या गुणगुणण्यापासून", keyHum: "माझ्या गुणगुणण्यावरून", browserOnly: "फक्त ब्राउझर डीफॉल्ट",
   gVoice: "आवाज", gStr: "तंतुवाद्ये", gWW: "सुषिर वाद्ये (वुडविंड)", gBr: "पितळी वाद्ये", gKeys: "कीबोर्ड आणि C वाद्ये",
   tPitch: "पिच", tMatch: "जुळवा", tTones: "ओव्हरटोन", noteTones: "पट्ट्या आदर्श ओव्हरटोन आहेत. लाल: तुमचे ओव्हरटोन रेषेपासून दूर आहेत.",
   hold: "±5¢ मध्ये टिकवा", bestNone: "तुमचा सर्वोत्तम निकाल इथे दिसेल", best: "सर्वोत्तम {0} s", foot: "सर्व काही याच डिव्हाइसवर राहते. मायक्रोफोन कधीही रेकॉर्ड करत नाही.",
@@ -611,6 +613,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 function scoreDraw(cur) { const el = $("#score"); el.innerHTML = ""; el.className = "score" + (S.gnotes && S.gnotes.length > 12 ? " dense" : "");
   S.gnotes && S.gnotes.forEach((m, i) => { const r = S.gres[i], d = document.createElement("div"), has = r !== undefined;
     d.className = has ? (r != null && Math.abs(r) <= 10 ? "ok" : "off") : (i === cur ? "now" : ""); d.innerHTML = nameOf(m) + "<span>" + (has ? (r == null ? t("miss") : (r > 0 ? "+" : r < 0 ? "−" : "") + Math.abs(Math.round(r)) + "¢") : i === cur ? t("now") : "·") + "</span>"; el.appendChild(d); }); }
+let taps = [];
+function noteLen() { return S.bpm ? 60 / S.bpm : +$("#nl").value; }
+function setBpm(v) { S.bpm = v || 0; $("#bpm").textContent = v ? Math.round(v) + " BPM" : "—"; $("#tapx").hidden = !v; $("#nl").disabled = !!v; $("#nl").style.opacity = v ? .4 : 1; }
+$("#tap").onclick = () => { const n = performance.now(); if (taps.length && n - taps[taps.length - 1] > 2000) taps = []; taps.push(n); if (taps.length > 6) taps.shift();
+  if (taps.length >= 2) setBpm(Math.max(30, Math.min(160, 60000 / ((taps[taps.length - 1] - taps[0]) / (taps.length - 1))))); else $("#bpm").textContent = "…"; };
+$("#tapx").onclick = () => { taps = []; setBpm(0); };
 function guideNote(m, d) {
   getAct();
   const c = S.act, t = c.currentTime, hz = toHz(m - shift(), a4()), o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
@@ -633,9 +641,9 @@ async function guide() {
   scoreDraw(0);
   for (let i = 0; i < S.gnotes.length; i++) {
     if (S.gid !== id) return; const m = S.gnotes[i]; S.gm = m; S.gn = S.gnotes[i + 1] != null ? S.gnotes[i + 1] : null; S.gacc = []; scoreDraw(i); say(t("listenTo", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
-    const d = +$("#nl").value; S.mute = performance.now() + d * 1000 + 300; guideNote(m, d); await sleep(d * 1000 + 300); if (S.gid !== id) return; say(t("yourTurn", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
+    const d = noteLen(); S.mute = performance.now() + d * 1000 + 300; guideNote(m, d); await sleep(d * 1000 + 300); if (S.gid !== id) return; say(t("yourTurn", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
     const t0 = performance.now(); let res;
-    while (performance.now() - t0 < 2200 + d * 700) { await sleep(60); if (S.gid !== id) return; const a = S.gacc.slice(-12);
+    while (performance.now() - t0 < (S.bpm ? d * 1000 : 2200 + d * 700)) { await sleep(60); if (S.gid !== id) return; const a = S.gacc.slice(-12);
       if (a.length >= 12 && a.every(d => Math.abs(d) <= 10)) { res = median(a); break; } }
     if (res === undefined) { const a = S.gacc.slice(-12); res = a.length >= 6 ? median(a) : null; }
     S.gres[i] = res; scoreDraw(i + 1); await sleep(250); }
