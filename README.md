@@ -18,7 +18,7 @@ Everything runs in your browser. The page does not record or send audio.
 
 ## Languages
 
-English, Hindi, Portuguese, French, Persian, Chinese (Simplified). Use the language menu at the top.
+English, Spanish, Portuguese, Hindi, Marathi. These match the five most common languages of the account's followers. Use the language menu at the top.
 The translations were not checked by a native speaker. Instrument names, scale names, and note names stay in English.
 
 ## Not yet checked

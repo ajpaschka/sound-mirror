@@ -89,8 +89,7 @@ footer{margin-top:6px;padding-top:6px;border-top-width:2px;font-size:10px}
 @media(max-width:760px){.r1,.r3,.stw,.ci{grid-column:1/-1}.ci{justify-self:center}}
 .dock{display:contents}.tabs{display:none}
 .lang{min-width:0;padding-right:18px}
-html[lang=hi] *,html[lang=fa] *,html[lang=zh] *{letter-spacing:0!important}
-html[lang=fa] .msg,html[lang=fa] .note,html[lang=fa] .verdict,html[lang=fa] label,html[lang=fa] .cap,html[lang=fa] summary,html[lang=fa] footer span,html[lang=fa] .score div{direction:rtl}
+html[lang=hi] *,html[lang=mr] *{letter-spacing:0!important}
 button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){.gauge u{transition:none}}
 /* ---- PHONE: one job per screen. Thumb-zone dock at the bottom, three views on top, settings in a bottom sheet ---- */
@@ -271,7 +270,7 @@ const SC = {}; SCALE_LIB.forEach(([g, l]) => { const og = document.createElement
  NAMES.forEach((n, i) => $("#root").add(new Option(n, i))); $("#root").add(new Option("From my hum", "hum")); $("#root").value = 10; $("#inst").selectedIndex = 1; $("#scale").value = "Major (Ionian)";
 /* i18n: interface strings only. Instrument names, scale names and note names stay as they are.
    Translations written by Claude, NOT reviewed by a native speaker. */
-const LANGS = { en: "English", hi: "हिन्दी", pt: "Português", fr: "Français", fa: "فارسی", zh: "中文" };
+const LANGS = { en: "English", es: "Español", pt: "Português", hi: "हिन्दी", mr: "मराठी" };
 const TR = {
 en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop", guide: "Guide me", guideStop: "Stop guide",
   lbInst: "Voice / instrument", lbKey: "Key", lbScale: "Scale", more: "More", lbIn: "Input (microphone)", lbOut: "Output (speakers)", lbCs: "Custom scale, in semitones", lbNl: "Note length", lbRg: "Guide starts",
@@ -321,53 +320,37 @@ pt: { tag: "Como você soa / como você deveria soar", listen: "Ouvir", stop: "P
   gStopped: "Guia parado.", humPrompt: "Cantarole uma nota confortável, grave ou aguda. O guia começa ali.", noHum: "Não ouvi uma nota firme. Começando no meio.", keySet: "Tom definido como {0} pelo seu cantarolar.",
   listenTo: "Ouça {0}. {1}", yourTurn: "Sua vez: cante {0}. {1}", nextN: "Próxima: {0}.", last: "Última nota.", result: "{0} de {1} notas dentro de 10¢. Tente de novo para melhorar." },
 
-fr: { tag: "Comment vous sonnez / comment vous devriez sonner", listen: "Écouter", stop: "Arrêter", guide: "Guidez-moi", guideStop: "Arrêter le guide",
-  lbInst: "Voix / instrument", lbKey: "Tonalité", lbScale: "Gamme", more: "Plus", lbIn: "Entrée (micro)", lbOut: "Sortie (haut-parleurs)", lbCs: "Gamme personnalisée, en demi-tons", lbNl: "Durée de la note", lbRg: "Le guide commence",
-  dMic: "Micro par défaut", dSpk: "Haut-parleurs par défaut", nl2: "Courte, 2 s", nl4: "Longue, 4 s", nl7: "Très longue, 7 s", rgInst: "Dans l'étendue de ma voix / instrument", rgAuto: "Là où je fredonne", keyHum: "D'après mon fredonnement", browserOnly: "Navigateur par défaut seulement",
-  gVoice: "Voix", gStr: "Cordes", gWW: "Bois", gBr: "Cuivres", gKeys: "Claviers et instruments en ut",
-  tPitch: "Hauteur", tMatch: "Comparer", tTones: "Harmoniques", noteTones: "Les barres sont les harmoniques idéales. Rouge : les vôtres s'écartent de la ligne.",
-  hold: "Tenir à ±5¢", bestNone: "Votre record s'affiche ici", best: "Record {0} s", foot: "Tout reste sur cet appareil. Le micro n'enregistre jamais.",
-  listenBt: "Écoute sur {0}. Les micros Bluetooth sonnent mince. Mieux : Entrée = micro intégré, Sortie = vos AirPods (Plus).", listening: "Écoute : {0}. Utilisez un casque si vous jouez les notes de référence.",
-  errBlocked: "Micro bloqué. Autorisez le micro pour ce site dans le navigateur, puis appuyez sur Écouter.", errNone: "Aucun micro trouvé.", errOver: "Ce micro n'est pas disponible. Choisissez une autre entrée sous Plus.", errStart: "Démarrage impossible : {0}",
-  stopped: "Arrêté.", outFail: "Changement de sortie impossible : {0}", playing: "Lecture de {0}. Écoutez, puis reproduisez.",
-  inTune: "Juste", sharp: "Trop haut. Descendez.", flat: "Trop bas. Montez.", whoOn: "Vous êtes sur {0}, {1}.", deadOn: "pile", cSharp: "{0}¢ trop haut", cFlat: "{0}¢ trop bas", whoOff: "Vous êtes sur {0}. Vous devriez être sur {1}.",
-  waitStart: "Appuyez sur Écouter, puis chantez ou jouez une note", waitClear: "En attente d'une note nette", next: "suiv.", now: "maintenant", miss: "raté",
-  semi: n => n + (n > 1 ? " demi-tons" : " demi-ton"), stripUp: "AU-DESSUS DE LA GAMME  ·  {0} au-dessus de {1}", stripDown: "EN DESSOUS DE LA GAMME  ·  {0} sous {1}", shortUp: "{0} au-dessus de {1}", shortDown: "{0} sous {1}",
-  written: "ÉCRIT", sounding: "SON RÉEL", fingering: "DOIGTÉ", outRange: "HORS ÉTENDUE", noKeys: "AUCUNE CLÉ", alt: "alternatif", valve: "piston {0}", valves: "pistons {0}", open: "à vide", pos: "position {0}", should: "DEVRAIT {0}", you: "VOUS {0}",
-  gStopped: "Guide arrêté.", humPrompt: "Fredonnez une note confortable, grave ou aiguë. Le guide commence là.", noHum: "Pas de note stable entendue. Départ au milieu.", keySet: "Tonalité réglée sur {0} d'après votre fredonnement.",
-  listenTo: "Écoutez {0}. {1}", yourTurn: "À vous : chantez {0}. {1}", nextN: "Suivante : {0}.", last: "Dernière note.", result: "{0} notes sur {1} à moins de 10¢. Recommencez pour faire mieux." },
+es: { tag: "Cómo suenas / cómo deberías sonar", listen: "Escuchar", stop: "Detener", guide: "Guíame", guideStop: "Detener guía",
+  lbInst: "Voz / instrumento", lbKey: "Tonalidad", lbScale: "Escala", more: "Más", lbIn: "Entrada (micrófono)", lbOut: "Salida (altavoces)", lbCs: "Escala personalizada, en semitonos", lbNl: "Duración de la nota", lbRg: "La guía empieza",
+  dMic: "Micrófono predeterminado", dSpk: "Altavoces predeterminados", nl2: "Corta, 2 s", nl4: "Larga, 4 s", nl7: "Muy larga, 7 s", rgInst: "En el rango de mi voz / instrumento", rgAuto: "Donde tarareo", keyHum: "Según mi tarareo", browserOnly: "Solo el predeterminado del navegador",
+  gVoice: "Voz", gStr: "Cuerdas", gWW: "Maderas", gBr: "Metales", gKeys: "Teclados e instrumentos en do",
+  tPitch: "Altura", tMatch: "Comparar", tTones: "Armónicos", noteTones: "Las barras son los armónicos ideales. Rojo: los tuyos se salen de la línea.",
+  hold: "Mantén en ±5¢", bestNone: "Tu mejor marca aparece aquí", best: "Mejor {0} s", foot: "Todo se queda en este dispositivo. El micrófono nunca graba.",
+  listenBt: "Escuchando en {0}. Los micrófonos Bluetooth suenan delgados. Mejor: Entrada = micrófono integrado, Salida = tus AirPods (Más).", listening: "Escuchando: {0}. Usa audífonos si tocas las notas de referencia.",
+  errBlocked: "Micrófono bloqueado. Permite el micrófono para este sitio en el navegador y pulsa Escuchar.", errNone: "No se encontró ningún micrófono.", errOver: "Ese micrófono no está disponible ahora. Elige otra entrada en Más.", errStart: "No se pudo iniciar: {0}",
+  stopped: "Detenido.", outFail: "No se pudo cambiar la salida: {0}", playing: "Reproduciendo {0}. Escúchala y luego iguálala.",
+  inTune: "Afinado", sharp: "Alto. Baja un poco.", flat: "Bajo. Sube un poco.", whoOn: "Estás en {0}, {1}.", deadOn: "justo", cSharp: "{0}¢ alto", cFlat: "{0}¢ bajo", whoOff: "Estás en {0}. Deberías estar en {1}.",
+  waitStart: "Pulsa Escuchar y canta o toca una nota", waitClear: "Esperando una nota clara", next: "sig.", now: "ahora", miss: "falló",
+  semi: n => n + (n === 1 ? " semitono" : " semitonos"), stripUp: "SOBRE LA ESCALA  ·  {0} sobre {1}", stripDown: "BAJO LA ESCALA  ·  {0} bajo {1}", shortUp: "{0} sobre {1}", shortDown: "{0} bajo {1}",
+  written: "ESCRITO", sounding: "SONIDO REAL", fingering: "DIGITACIÓN", outRange: "FUERA DE RANGO", noKeys: "SIN LLAVES", alt: "alternativa", valve: "pistón {0}", valves: "pistones {0}", open: "al aire", pos: "posición {0}", should: "DEBERÍA {0}", you: "TÚ {0}",
+  gStopped: "Guía detenida.", humPrompt: "Tararea una nota cómoda, grave o aguda. La guía empieza ahí.", noHum: "No se oyó una nota firme. Empezando por el medio.", keySet: "Tonalidad fijada en {0} según tu tarareo.",
+  listenTo: "Escucha {0}. {1}", yourTurn: "Tu turno: canta {0}. {1}", nextN: "Siguiente: {0}.", last: "Última nota.", result: "{0} de {1} notas dentro de 10¢. Inténtalo de nuevo para mejorar." },
 
-fa: { tag: "چگونه صدا می‌دهید / چگونه باید صدا بدهید", listen: "گوش کن", stop: "توقف", guide: "راهنما", guideStop: "توقف راهنما",
-  lbInst: "صدا / ساز", lbKey: "تونالیته", lbScale: "گام", more: "بیشتر", lbIn: "ورودی (میکروفون)", lbOut: "خروجی (بلندگو)", lbCs: "گام دلخواه (بر حسب نیم‌پرده)", lbNl: "طول نت", lbRg: "شروع راهنما",
-  dMic: "میکروفون پیش‌فرض", dSpk: "بلندگوی پیش‌فرض", nl2: "کوتاه، 2 ثانیه", nl4: "بلند، 4 ثانیه", nl7: "بسیار بلند، 7 ثانیه", rgInst: "محدودهٔ صدا / سازِ من", rgAuto: "جایی که زمزمه می‌کنم", keyHum: "از روی زمزمهٔ من", browserOnly: "فقط پیش‌فرض مرورگر",
-  gVoice: "صدا", gStr: "سازهای زهی", gWW: "سازهای بادی چوبی", gBr: "سازهای بادی برنجی", gKeys: "کلیدها و سازهای دو (C)",
-  tPitch: "زیر و بمی", tMatch: "تطبیق", tTones: "هارمونیک‌ها", noteTones: "میله‌ها هارمونیک‌های آرمانی‌اند. قرمز: هارمونیک‌های شما از خط خارج‌اند.",
-  hold: "ماندن در ±5¢", bestNone: "بهترین زمان شما اینجا نشان داده می‌شود", best: "بهترین {0} s", foot: "همه‌چیز روی همین دستگاه می‌ماند. میکروفون هرگز ضبط نمی‌شود.",
-  listenBt: "گوش دادن روی {0}. میکروفون بلوتوث صدای نازکی دارد. برای بهترین نتیجه: ورودی = میکروفون داخلی، خروجی = ایرپاد شما (بیشتر).", listening: "در حال گوش دادن: {0}. اگر نت مرجع پخش می‌کنید از هدفون استفاده کنید.",
-  errBlocked: "میکروفون مسدود است. در مرورگر اجازهٔ میکروفون را برای این سایت بدهید، سپس «گوش کن» را بزنید.", errNone: "میکروفونی پیدا نشد.", errOver: "این میکروفون اکنون در دسترس نیست. از «بیشتر» ورودی دیگری انتخاب کنید.", errStart: "شروع نشد: {0}",
-  stopped: "متوقف شد.", outFail: "تغییر خروجی ممکن نشد: {0}", playing: "پخش {0}. بشنوید، بعد تطبیق دهید.",
-  inTune: "کوک", sharp: "بالاتر از نت. کمی پایین بیایید.", flat: "پایین‌تر از نت. کمی بالا بروید.", whoOn: "شما روی {0} هستید، {1}.", deadOn: "دقیق", cSharp: "{0}¢ بالاتر", cFlat: "{0}¢ پایین‌تر", whoOff: "شما روی {0} هستید. باید روی {1} باشید.",
-  waitStart: "«گوش کن» را بزنید، سپس بخوانید یا بنوازید", waitClear: "منتظر نتی واضح", next: "بعدی", now: "اکنون", miss: "ناموفق",
-  semi: n => n + " نیم‌پرده", stripUp: "بالاتر از گام  ·  {0} بالاتر از {1}", stripDown: "پایین‌تر از گام  ·  {0} پایین‌تر از {1}", shortUp: "{0} بالاتر از {1}", shortDown: "{0} پایین‌تر از {1}",
-  written: "نوشته‌شده", sounding: "صدای واقعی", fingering: "انگشت‌گذاری", outRange: "خارج از محدوده", noKeys: "بدون کلید", alt: "جایگزین", valve: "والو {0}", valves: "والو {0}", open: "باز", pos: "موقعیت {0}", should: "درست: {0}", you: "شما {0}",
-  gStopped: "راهنما متوقف شد.", humPrompt: "یک نت راحت را زمزمه کنید، بم یا زیر. راهنما از همان‌جا شروع می‌کند.", noHum: "نت ثابتی شنیده نشد. از میانه شروع می‌کنیم.", keySet: "تونالیته از زمزمهٔ شما روی {0} تنظیم شد.",
-  listenTo: "به {0} گوش دهید. {1}", yourTurn: "نوبت شماست: {0} را بخوانید. {1}", nextN: "بعدی: {0}.", last: "آخرین نت.", result: "{0} از {1} نت در ±10¢. دوباره امتحان کنید." },
-
-zh: { tag: "你的声音 / 应有的声音", listen: "开始听", stop: "停止", guide: "带我练", guideStop: "停止引导",
-  lbInst: "人声 / 乐器", lbKey: "调", lbScale: "音阶", more: "更多", lbIn: "输入（麦克风）", lbOut: "输出（扬声器）", lbCs: "自定义音阶（半音数）", lbNl: "音长", lbRg: "引导从哪里开始",
-  dMic: "默认麦克风", dSpk: "默认扬声器", nl2: "短，2 秒", nl4: "长，4 秒", nl7: "很长，7 秒", rgInst: "我的音域", rgAuto: "我哼的位置", keyHum: "按我哼的音", browserOnly: "仅浏览器默认",
-  gVoice: "人声", gStr: "弦乐器", gWW: "木管乐器", gBr: "铜管乐器", gKeys: "键盘与 C 调乐器",
-  tPitch: "音高", tMatch: "对比", tTones: "泛音", noteTones: "条形为理想泛音。红色：你的泛音偏离标线。",
-  hold: "稳定在 ±5¢ 内", bestNone: "最佳成绩显示在这里", best: "最佳 {0} 秒", foot: "所有数据都留在本设备上。麦克风从不录音。",
-  listenBt: "正在使用 {0}。蓝牙麦克风声音偏薄。建议：输入选内置麦克风，输出选 AirPods（更多）。", listening: "正在聆听：{0}。若播放参考音，请戴耳机。",
-  errBlocked: "麦克风被阻止。请在浏览器中允许此网站使用麦克风，然后点“开始听”。", errNone: "没有找到麦克风。", errOver: "该麦克风现在不可用。请在“更多”里选择其他输入。", errStart: "无法启动：{0}",
-  stopped: "已停止。", outFail: "无法切换输出：{0}", playing: "正在播放 {0}。先听，再唱出来。",
-  inTune: "音准", sharp: "偏高。放低一点。", flat: "偏低。抬高一点。", whoOn: "你在 {0}，{1}。", deadOn: "完全准确", cSharp: "偏高 {0}¢", cFlat: "偏低 {0}¢", whoOff: "你在 {0}。应该在 {1}。",
-  waitStart: "点“开始听”，然后唱或演奏一个音", waitClear: "等待清晰的音", next: "下一个", now: "现在", miss: "未中",
-  semi: n => n + " 个半音", stripUp: "高于音阶  ·  比 {1} 高 {0}", stripDown: "低于音阶  ·  比 {1} 低 {0}", shortUp: "比 {1} 高 {0}", shortDown: "比 {1} 低 {0}",
-  written: "记谱", sounding: "实际音高", fingering: "指法", outRange: "超出音域", noKeys: "无按键", alt: "替代指法", valve: "活塞 {0}", valves: "活塞 {0}", open: "空管", pos: "第 {0} 把位", should: "应唱 {0}", you: "你 {0}",
-  gStopped: "已停止引导。", humPrompt: "哼一个舒服的音，高低都行。引导会从那里开始。", noHum: "没听到稳定的音。从中间开始。", keySet: "已按你哼的音把调设为 {0}。",
-  listenTo: "听 {0}。{1}", yourTurn: "轮到你：唱 {0}。{1}", nextN: "下一个：{0}。", last: "最后一个音。", result: "{1} 个音里有 {0} 个在 10¢ 以内。再试一次。" }
+mr: { tag: "तुम्ही कसे ऐकू येता / कसे ऐकू यायला हवे", listen: "ऐका", stop: "थांबवा", guide: "मार्गदर्शन", guideStop: "मार्गदर्शन थांबवा",
+  lbInst: "आवाज / वाद्य", lbKey: "की", lbScale: "स्केल", more: "अधिक", lbIn: "इनपुट (मायक्रोफोन)", lbOut: "आउटपुट (स्पीकर)", lbCs: "सानुकूल स्केल (सेमीटोनमध्ये)", lbNl: "स्वराची लांबी", lbRg: "गाइड कुठून सुरू व्हावा",
+  dMic: "डीफॉल्ट मायक्रोफोन", dSpk: "डीफॉल्ट स्पीकर", nl2: "लहान, 2 सेकंद", nl4: "लांब, 4 सेकंद", nl7: "खूप लांब, 7 सेकंद", rgInst: "माझ्या आवाजाची / वाद्याची रेंज", rgAuto: "माझ्या गुणगुणण्यापासून", keyHum: "माझ्या गुणगुणण्यावरून", browserOnly: "फक्त ब्राउझर डीफॉल्ट",
+  gVoice: "आवाज", gStr: "तंतुवाद्ये", gWW: "सुषिर वाद्ये (वुडविंड)", gBr: "पितळी वाद्ये", gKeys: "कीबोर्ड आणि C वाद्ये",
+  tPitch: "पिच", tMatch: "जुळवा", tTones: "ओव्हरटोन", noteTones: "पट्ट्या आदर्श ओव्हरटोन आहेत. लाल: तुमचे ओव्हरटोन रेषेपासून दूर आहेत.",
+  hold: "±5¢ मध्ये टिकवा", bestNone: "तुमचा सर्वोत्तम निकाल इथे दिसेल", best: "सर्वोत्तम {0} s", foot: "सर्व काही याच डिव्हाइसवर राहते. मायक्रोफोन कधीही रेकॉर्ड करत नाही.",
+  listenBt: "{0} वर ऐकत आहे. ब्लूटूथ माइकचा आवाज बारीक येतो. उत्तम निकालासाठी: इनपुट = बिल्ट-इन माइक, आउटपुट = तुमचे AirPods (अधिक).", listening: "ऐकत आहे: {0}. संदर्भ स्वर वाजवत असाल तर हेडफोन वापरा.",
+  errBlocked: "माइक बंद आहे. ब्राउझरमध्ये या साइटसाठी मायक्रोफोनला परवानगी द्या, मग ऐका दाबा.", errNone: "मायक्रोफोन सापडला नाही.", errOver: "तो मायक्रोफोन आता उपलब्ध नाही. \"अधिक\" मध्ये दुसरा इनपुट निवडा.", errStart: "सुरू करता आले नाही: {0}",
+  stopped: "थांबले.", outFail: "आउटपुट बदलता आले नाही: {0}", playing: "{0} वाजत आहे. ऐका, मग जुळवा.",
+  inTune: "सुरात", sharp: "वर आहे. थोडे खाली या.", flat: "खाली आहे. थोडे वर जा.", whoOn: "तुम्ही {0} वर आहात, {1}.", deadOn: "अगदी बरोबर", cSharp: "{0}¢ वर", cFlat: "{0}¢ खाली", whoOff: "तुम्ही {0} वर आहात. तुम्ही {1} वर असायला हवे.",
+  waitStart: "ऐका दाबा, मग गा किंवा वाजवा", waitClear: "स्पष्ट स्वराची वाट पाहत आहे", next: "पुढचा", now: "आता", miss: "चुकले",
+  semi: n => n + " सेमीटोन", stripUp: "स्केलच्या वर  ·  {1} पेक्षा {0} वर", stripDown: "स्केलच्या खाली  ·  {1} पेक्षा {0} खाली", shortUp: "{1} पेक्षा {0} वर", shortDown: "{1} पेक्षा {0} खाली",
+  written: "लिखित", sounding: "प्रत्यक्ष ध्वनी", fingering: "बोटांची रचना", outRange: "रेंजबाहेर", noKeys: "कळ नाही", alt: "पर्यायी", valve: "व्हॉल्व्ह {0}", valves: "व्हॉल्व्ह {0}", open: "उघडे", pos: "स्थिती {0}", should: "योग्य स्वर {0}", you: "तुम्ही {0}",
+  gStopped: "मार्गदर्शन थांबले.", humPrompt: "एक सोयीचा स्वर गुणगुणा, खालचा किंवा वरचा. गाइड तिथून सुरू होईल.", noHum: "स्थिर स्वर ऐकू आला नाही. मध्यापासून सुरू करत आहे.", keySet: "तुमच्या गुणगुणण्यावरून की {0} ठरवली.",
+  listenTo: "{0} ऐका. {1}", yourTurn: "तुमची पाळी: {0} गा. {1}", nextN: "पुढचा: {0}.", last: "शेवटचा स्वर.", result: "{1} पैकी {0} स्वर 10¢ च्या आत. पुन्हा प्रयत्न करा." }
 };
 let LANG = "en";
 function t(k, ...a) { let v = TR[LANG][k]; if (v === undefined) v = TR.en[k]; if (typeof v === "function") v = v(...a);
