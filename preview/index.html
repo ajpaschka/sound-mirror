@@ -12,7 +12,7 @@
 /* Paschka Studio: Gotham 400/500 only, ink on paper, studio-blue as graphic, studio-red as text and signal. */
 @font-face{font-family:"PS Gotham";font-weight:400;src:local("Gotham Book"),local("Gotham-Book")}
 @font-face{font-family:"PS Gotham";font-weight:500;src:local("Gotham Medium"),local("Gotham-Medium")}
-:root{--ink:#1A2040;--paper:#FAFAF4;--blue:#45A9D7;--red:#C1003A;--hair:rgba(26,32,64,.16);
+:root{--ink:#1A2040;--paper:#FAFAF4;--blue:#45A9D7;--lav:#8C72B8;--red:#C1003A;--hair:rgba(26,32,64,.16);
   --font:"PS Gotham","Montserrat","Helvetica Neue",Arial,"Noto Sans Devanagari","Kohinoor Devanagari","Geeza Pro","Noto Sans Arabic","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif}
 *{box-sizing:border-box}
 html{background:var(--paper)}
@@ -95,10 +95,17 @@ html[lang=hi] *,html[lang=mr] *{letter-spacing:0!important}
 button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){.gauge u{transition:none}}
 
+.cad{display:flex;position:relative;margin-top:4px;border:2px solid var(--ink);height:40px}
+.cad[hidden]{display:none}
+.cad span{flex:1;display:flex;align-items:center;justify-content:center;font-size:15px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;opacity:.3}
+.cad[data-p=me] .cm{opacity:1;background:var(--ink);color:var(--paper)}
+.cad[data-p=you] .cy{opacity:1;background:var(--lav);color:var(--paper)}
+.cad i{position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--blue);transform-origin:left}
+@media(max-width:700px){.cad:not([hidden])~.sec .trw{min-height:70px}}
 /* ---- side rail + full-screen menus ---- */
 .rail{position:fixed;z-index:31;display:flex;gap:0}
 .rail button,.fs .x{background:transparent;color:var(--ink);border:0;padding:0;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.85}
-.rail button:hover,.fs .x:hover{opacity:1}
+.rail button{color:var(--lav);opacity:1}.rail button:hover,.fs .x:hover{opacity:1}
 .rail button:focus-visible,.fs .x:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 @media(min-width:701px){.rail{right:14px;top:50%;transform:translateY(-50%);flex-direction:column;border:2px solid var(--ink);background:var(--paper)}}
 .fs{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto}
@@ -201,6 +208,7 @@ button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
     </div>
   </div>
   <div class="msg" id="msg" aria-live="polite"></div>
+  <div class="cad" id="cad" hidden aria-hidden="true"><span class="cm" data-i="cadMe">Me</span><span class="cy" data-i="cadYou">You</span><i id="cadb"></i></div>
 
   <nav class="tabs" role="tablist" aria-label="View">
     <button type="button" role="tab" data-v="pitch" aria-selected="true" data-i="tPitch">Pitch</button>
@@ -293,7 +301,7 @@ const median = a => a.slice().sort((p, q) => p - q)[a.length >> 1];
 <script>
 const SAX_KEYS = {"keys": [[136.1, 128.8], [146.9, 137.1], [114.2, 140.8], [135.8, 144.6], [78.9, 153.0], [115.0, 158.6], [70.0, 168.1], [117.6, 168.3], [145.4, 174.1], [116.4, 178.8], [155.2, 183.2], [140.4, 187.9], [121.7, 190.1], [149.5, 194.5], [78.8, 283.2], [78.0, 295.5], [99.7, 297.3], [87.8, 309.6], [78.8, 309.7], [102.5, 315.9], [87.8, 327.6], [82.2, 339.7], [101.0, 342.8], [77.4, 346.7]], "notes": {"57": [[5, 6, 9, 12, 13, 16, 19, 22, 23]], "58": [[5, 9, 12, 13, 16, 19, 22, 23]], "59": [[5, 9, 11, 12, 16, 19, 22, 23]], "60": [[5, 9, 12, 16, 19, 22, 23]], "61": [[5, 9, 10, 12, 16, 19, 22, 23]], "62": [[5, 9, 12, 16, 19, 22]], "63": [[5, 9, 12, 16, 19, 21, 22]], "64": [[5, 9, 12, 16, 19]], "65": [[5, 9, 12, 16]], "66": [[5, 9, 12, 19], [5, 9, 12, 16, 20]], "67": [[5, 9, 12]], "68": [[5, 8, 9, 12]], "69": [[5, 9]], "70": [[5, 9, 18], [5, 7]], "71": [[5]], "72": [[9], [5, 15]], "73": [[]], "74": [[4, 5, 9, 12, 16, 19, 22]], "75": [[4, 5, 9, 12, 16, 19, 21, 22]], "76": [[4, 5, 9, 12, 16, 19]], "77": [[4, 5, 9, 12, 16]], "78": [[4, 5, 9, 12, 19], [4, 5, 9, 12, 16, 20]], "79": [[4, 5, 9, 12]], "80": [[4, 5, 8, 9, 12]], "81": [[4, 5, 9]], "82": [[4, 5, 9, 18], [4, 5, 7]], "83": [[4, 5]], "84": [[4, 9], [4, 5, 15]], "85": [[4]], "86": [[1, 4]], "87": [[0, 1, 4]], "88": [[0, 1, 4, 14], [2, 4, 9, 12]], "89": [[0, 1, 3, 4, 14], [2, 4, 9]], "90": [[2, 4, 9, 17], [0, 1, 3, 4, 14, 17]]}};
 
-const $ = s => document.querySelector(s), INK = "#1A2040", PAPER = "#FAFAF4", BLUE = "#45A9D7", RED = "#C1003A", FONT = '"PS Gotham",Montserrat,sans-serif';
+const $ = s => document.querySelector(s), INK = "#1A2040", PAPER = "#FAFAF4", BLUE = "#45A9D7", LAV = "#8C72B8", RED = "#C1003A", FONT = '"PS Gotham",Montserrat,sans-serif';
 const SCALE_LIB = [["Chromatic", [["Chromatic (every note)", null], ["Quarter-tone chromatic (24 per octave)", [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5]]]], ["Modes", [["Major (Ionian)", [0, 2, 4, 5, 7, 9, 11]], ["Dorian", [0, 2, 3, 5, 7, 9, 10]], ["Phrygian", [0, 1, 3, 5, 7, 8, 10]], ["Lydian", [0, 2, 4, 6, 7, 9, 11]], ["Mixolydian", [0, 2, 4, 5, 7, 9, 10]], ["Natural minor (Aeolian)", [0, 2, 3, 5, 7, 8, 10]], ["Locrian", [0, 1, 3, 5, 6, 8, 10]]]], ["Other seven-note", [["Harmonic minor", [0, 2, 3, 5, 7, 8, 11]], ["Melodic minor (ascending)", [0, 2, 3, 5, 7, 9, 11]], ["Phrygian dominant (Spanish)", [0, 1, 4, 5, 7, 8, 10]], ["Double harmonic (Byzantine)", [0, 1, 4, 5, 7, 8, 11]], ["Hungarian minor", [0, 2, 3, 6, 7, 8, 11]], ["Lydian dominant", [0, 2, 4, 6, 7, 9, 10]], ["Altered (super-Locrian)", [0, 1, 3, 4, 6, 8, 10]], ["Neapolitan minor", [0, 1, 3, 5, 7, 8, 11]]]], ["Symmetric and jazz", [["Whole tone", [0, 2, 4, 6, 8, 10]], ["Octatonic, whole-half", [0, 2, 3, 5, 6, 8, 9, 11]], ["Octatonic, half-whole", [0, 1, 3, 4, 6, 7, 9, 10]], ["Augmented", [0, 3, 4, 7, 8, 11]], ["Bebop dominant", [0, 2, 4, 5, 7, 9, 10, 11]], ["Bebop major", [0, 2, 4, 5, 7, 8, 9, 11]], ["Prometheus", [0, 2, 4, 6, 9, 10]]]], ["Pentatonic and blues", [["Major pentatonic", [0, 2, 4, 7, 9]], ["Minor pentatonic", [0, 3, 5, 7, 10]], ["Blues (minor)", [0, 3, 5, 6, 7, 10]], ["Blues (major)", [0, 2, 3, 4, 7, 9]], ["Hirajoshi", [0, 2, 3, 7, 8]], ["In (Insen)", [0, 1, 5, 7, 10]], ["Iwato", [0, 1, 5, 6, 10]], ["Yo", [0, 2, 5, 7, 9]], ["Egyptian (suspended)", [0, 2, 5, 7, 10]]]], ["Indian (12-note approximations)", [["Bhairav", [0, 1, 4, 5, 7, 8, 11]], ["Bhairavi", [0, 1, 3, 5, 7, 8, 10]], ["Todi", [0, 1, 3, 6, 7, 8, 11]], ["Marwa", [0, 1, 4, 6, 7, 9, 11]], ["Purvi", [0, 1, 4, 6, 7, 8, 11]]]], ["Arabic (quarter tones, approximate)", [["Maqam Rast", [0, 2, 3.5, 5, 7, 9, 10.5]], ["Maqam Bayati", [0, 1.5, 3, 5, 7, 8, 10]], ["Maqam Saba", [0, 1.5, 3, 4, 7, 8, 10]], ["Maqam Hijaz", [0, 1, 4, 5, 7, 8, 10]], ["Maqam Nahawand", [0, 2, 3, 5, 7, 8, 11]], ["Maqam Kurd", [0, 1, 3, 5, 7, 8, 10]]]], ["Tuning systems", [["Just intonation major (5-limit)", [0, 2.039, 3.863, 4.98, 7.02, 8.844, 10.883]], ["Harmonic series, overtones 8 to 15", [0, 2.039, 3.863, 5.513, 7.02, 8.405, 9.688, 10.883]], ["Slendro (5 near-equal steps)", [0, 2.4, 4.8, 7.2, 9.6]]]], ["Your own", [["Custom (type it in More)", "custom"]]]];
 const SC = {}; SCALE_LIB.forEach(([g, l]) => { const og = document.createElement("optgroup"); og.label = g; l.forEach(([n, d]) => { SC[n] = d; og.appendChild(new Option(n)); }); $("#scale").appendChild(og); });
  NAMES.forEach((n, i) => $("#root").add(new Option(n, i))); $("#root").add(new Option("From my hum", "hum")); $("#root").value = 10; $("#inst").selectedIndex = 1; $("#scale").value = "Major (Ionian)";
@@ -303,7 +311,7 @@ const LANGS = { en: "English", es: "Español", pt: "Português", hi: "हिन�
 const TR = {
 en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop", guide: "Guide me", guideStop: "Stop guide",
   lbInst: "Voice / instrument", lbKey: "Key", lbScale: "Scale", more: "More", lbIn: "Input (microphone)", lbOut: "Output (speakers)", lbCs: "Custom scale, in semitones", lbNl: "Note length", lbRg: "Guide starts",
-  dMic: "Default microphone", dSpk: "Default speakers", pSound: "Sound", pPractice: "Practice", pLang: "Language", pHelp: "Help", close: "Close", h1: "Choose your voice or instrument, a key and a scale.", h2: "Tap Listen and allow the microphone.", h3: "Sing or play. Ink is you, blue is where you should be.", h4: "Tap Guide me to hear each note and answer it.", hPriv: "Everything stays in your browser. The page never records or sends your sound.", hAsk: "What would make this better for you?", hAsk2: "Tell us on Instagram or on the studio site.", lbBpm: "Tempo", tap: "Tap tempo", tapClr: "Clear", tapHint: "Tap the beat (one tap = one note)", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
+  dMic: "Default microphone", dSpk: "Default speakers", pSound: "Sound", pPractice: "Practice", pLang: "Language", pHelp: "Help", close: "Close", h1: "Choose your voice or instrument, a key and a scale.", h2: "Tap Listen and allow the microphone.", h3: "Sing or play. Ink is you, blue is where you should be.", h4: "Tap Guide me to hear each note and answer it.", hPriv: "Everything stays in your browser. The page never records or sends your sound.", hAsk: "What would make this better for you?", hAsk2: "Tell us on Instagram or on the studio site.", cadMe: "Me", cadYou: "You", lbBpm: "Tempo", tap: "Tap tempo", tapClr: "Clear", tapHint: "Tap the beat (one tap = one note)", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
   gVoice: "Voice", gStr: "Strings", gWW: "Woodwinds", gBr: "Brass", gKeys: "Keys and C instruments",
   tPitch: "Pitch", tMatch: "Match", tTones: "Overtones", noteTones: "Bars are the ideal overtones. Red: yours land off the line.",
   hold: "Hold within ±5¢", bestNone: "Your best shows here", best: "Best {0} s", foot: "Everything stays on this machine. The mic is never recorded.",
@@ -319,7 +327,7 @@ en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop
 
 hi: { tag: "आप कैसे सुनाई देते हैं / आपको कैसे सुनाई देना चाहिए", listen: "सुनो", stop: "रोकें", guide: "मार्गदर्शन", guideStop: "मार्गदर्शन रोकें",
   lbInst: "आवाज़ / वाद्य", lbKey: "की", lbScale: "स्केल", more: "और", lbIn: "इनपुट (माइक्रोफ़ोन)", lbOut: "आउटपुट (स्पीकर)", lbCs: "कस्टम स्केल (सेमीटोन में)", lbNl: "सुर की अवधि", lbRg: "गाइड कहाँ से शुरू हो",
-  dMic: "डिफ़ॉल्ट माइक्रोफ़ोन", dSpk: "डिफ़ॉल्ट स्पीकर", pSound: "ध्वनि", pPractice: "अभ्यास", pLang: "भाषा", pHelp: "मदद", close: "बंद करें", h1: "अपनी आवाज़ या वाद्य, एक की और एक स्केल चुनें।", h2: "सुनो दबाएँ और माइक्रोफ़ोन की अनुमति दें।", h3: "गाएँ या बजाएँ। स्याही आप हैं, नीला वह है जहाँ आपको होना चाहिए।", h4: "मार्गदर्शन दबाएँ, हर स्वर सुनें और उसका उत्तर दें।", hPriv: "सब कुछ आपके ब्राउज़र में रहता है। पेज आपकी आवाज़ कभी रिकॉर्ड या भेजता नहीं।", hAsk: "इसे आपके लिए बेहतर कैसे बनाया जाए?", hAsk2: "हमें Instagram या स्टूडियो साइट पर बताइए।", lbBpm: "गति", tap: "टैप करें", tapClr: "हटाएँ", tapHint: "ताल पर टैप करें (एक टैप = एक स्वर)", nl2: "छोटी, 2 सेकंड", nl4: "लंबी, 4 सेकंड", nl7: "बहुत लंबी, 7 सेकंड", rgInst: "मेरी आवाज़ / वाद्य की रेंज", rgAuto: "जहाँ मैं गुनगुनाऊँ", keyHum: "मेरी गुनगुनाहट से", browserOnly: "केवल ब्राउज़र डिफ़ॉल्ट",
+  dMic: "डिफ़ॉल्ट माइक्रोफ़ोन", dSpk: "डिफ़ॉल्ट स्पीकर", pSound: "ध्वनि", pPractice: "अभ्यास", pLang: "भाषा", pHelp: "मदद", close: "बंद करें", h1: "अपनी आवाज़ या वाद्य, एक की और एक स्केल चुनें।", h2: "सुनो दबाएँ और माइक्रोफ़ोन की अनुमति दें।", h3: "गाएँ या बजाएँ। स्याही आप हैं, नीला वह है जहाँ आपको होना चाहिए।", h4: "मार्गदर्शन दबाएँ, हर स्वर सुनें और उसका उत्तर दें।", hPriv: "सब कुछ आपके ब्राउज़र में रहता है। पेज आपकी आवाज़ कभी रिकॉर्ड या भेजता नहीं।", hAsk: "इसे आपके लिए बेहतर कैसे बनाया जाए?", hAsk2: "हमें Instagram या स्टूडियो साइट पर बताइए।", cadMe: "मैं", cadYou: "आप", lbBpm: "गति", tap: "टैप करें", tapClr: "हटाएँ", tapHint: "ताल पर टैप करें (एक टैप = एक स्वर)", nl2: "छोटी, 2 सेकंड", nl4: "लंबी, 4 सेकंड", nl7: "बहुत लंबी, 7 सेकंड", rgInst: "मेरी आवाज़ / वाद्य की रेंज", rgAuto: "जहाँ मैं गुनगुनाऊँ", keyHum: "मेरी गुनगुनाहट से", browserOnly: "केवल ब्राउज़र डिफ़ॉल्ट",
   gVoice: "आवाज़", gStr: "तार वाद्य", gWW: "सुषिर वाद्य (वुडविंड)", gBr: "पीतल वाद्य", gKeys: "कीबोर्ड और C वाद्य",
   tPitch: "पिच", tMatch: "मिलान", tTones: "ओवरटोन", noteTones: "पट्टियाँ आदर्श ओवरटोन हैं। लाल: आपके ओवरटोन लाइन से हटकर हैं।",
   hold: "±5¢ के भीतर टिकें", bestNone: "आपका सर्वश्रेष्ठ यहाँ दिखेगा", best: "सर्वश्रेष्ठ {0} s", foot: "सब कुछ इसी डिवाइस पर रहता है। माइक कभी रिकॉर्ड नहीं होता।",
@@ -335,7 +343,7 @@ hi: { tag: "आप कैसे सुनाई देते हैं / आप�
 
 pt: { tag: "Como você soa / como você deveria soar", listen: "Ouvir", stop: "Parar", guide: "Guie-me", guideStop: "Parar guia",
   lbInst: "Voz / instrumento", lbKey: "Tom", lbScale: "Escala", more: "Mais", lbIn: "Entrada (microfone)", lbOut: "Saída (alto-falantes)", lbCs: "Escala personalizada, em semitons", lbNl: "Duração da nota", lbRg: "O guia começa",
-  dMic: "Microfone padrão", dSpk: "Alto-falantes padrão", pSound: "Som", pPractice: "Prática", pLang: "Idioma", pHelp: "Ajuda", close: "Fechar", h1: "Escolha sua voz ou instrumento, um tom e uma escala.", h2: "Toque em Ouvir e permita o microfone.", h3: "Cante ou toque. A tinta é você, o azul é onde você deveria estar.", h4: "Toque em Guie-me para ouvir cada nota e responder.", hPriv: "Tudo fica no seu navegador. A página nunca grava nem envia o seu som.", hAsk: "O que tornaria isto melhor para você?", hAsk2: "Conte para nós no Instagram ou no site do estúdio.", lbBpm: "Andamento", tap: "Tocar", tapClr: "limpar", tapHint: "Toque no ritmo (um toque = uma nota)", nl2: "Curta, 2 s", nl4: "Longa, 4 s", nl7: "Muito longa, 7 s", rgInst: "Na minha extensão de voz / instrumento", rgAuto: "Onde eu cantarolo", keyHum: "A partir do meu cantarolar", browserOnly: "Só o padrão do navegador",
+  dMic: "Microfone padrão", dSpk: "Alto-falantes padrão", pSound: "Som", pPractice: "Prática", pLang: "Idioma", pHelp: "Ajuda", close: "Fechar", h1: "Escolha sua voz ou instrumento, um tom e uma escala.", h2: "Toque em Ouvir e permita o microfone.", h3: "Cante ou toque. A tinta é você, o azul é onde você deveria estar.", h4: "Toque em Guie-me para ouvir cada nota e responder.", hPriv: "Tudo fica no seu navegador. A página nunca grava nem envia o seu som.", hAsk: "O que tornaria isto melhor para você?", hAsk2: "Conte para nós no Instagram ou no site do estúdio.", cadMe: "Eu", cadYou: "Você", lbBpm: "Andamento", tap: "Tocar", tapClr: "limpar", tapHint: "Toque no ritmo (um toque = uma nota)", nl2: "Curta, 2 s", nl4: "Longa, 4 s", nl7: "Muito longa, 7 s", rgInst: "Na minha extensão de voz / instrumento", rgAuto: "Onde eu cantarolo", keyHum: "A partir do meu cantarolar", browserOnly: "Só o padrão do navegador",
   gVoice: "Voz", gStr: "Cordas", gWW: "Madeiras", gBr: "Metais", gKeys: "Teclados e instrumentos em dó",
   tPitch: "Altura", tMatch: "Comparar", tTones: "Harmônicos", noteTones: "As barras são os harmônicos ideais. Vermelho: os seus fogem da linha.",
   hold: "Segure em ±5¢", bestNone: "Seu melhor aparece aqui", best: "Melhor {0} s", foot: "Tudo fica neste aparelho. O microfone nunca grava.",
@@ -351,7 +359,7 @@ pt: { tag: "Como você soa / como você deveria soar", listen: "Ouvir", stop: "P
 
 es: { tag: "Cómo suenas / cómo deberías sonar", listen: "Escuchar", stop: "Detener", guide: "Guíame", guideStop: "Detener guía",
   lbInst: "Voz / instrumento", lbKey: "Tonalidad", lbScale: "Escala", more: "Más", lbIn: "Entrada (micrófono)", lbOut: "Salida (altavoces)", lbCs: "Escala personalizada, en semitonos", lbNl: "Duración de la nota", lbRg: "La guía empieza",
-  dMic: "Micrófono predeterminado", dSpk: "Altavoces predeterminados", pSound: "Sonido", pPractice: "Práctica", pLang: "Idioma", pHelp: "Ayuda", close: "Cerrar", h1: "Elige tu voz o instrumento, una tonalidad y una escala.", h2: "Toca Escuchar y permite el micrófono.", h3: "Canta o toca. La tinta eres tú, el azul es donde deberías estar.", h4: "Toca Guíame para oír cada nota y responderla.", hPriv: "Todo se queda en tu navegador. La página nunca graba ni envía tu sonido.", hAsk: "¿Qué haría esto mejor para ti?", hAsk2: "Cuéntanos en Instagram o en el sitio del estudio.", lbBpm: "Tempo", tap: "Tocar", tapClr: "borrar", tapHint: "Toca el pulso (un toque = una nota)", nl2: "Corta, 2 s", nl4: "Larga, 4 s", nl7: "Muy larga, 7 s", rgInst: "En el rango de mi voz / instrumento", rgAuto: "Donde tarareo", keyHum: "Según mi tarareo", browserOnly: "Solo el predeterminado del navegador",
+  dMic: "Micrófono predeterminado", dSpk: "Altavoces predeterminados", pSound: "Sonido", pPractice: "Práctica", pLang: "Idioma", pHelp: "Ayuda", close: "Cerrar", h1: "Elige tu voz o instrumento, una tonalidad y una escala.", h2: "Toca Escuchar y permite el micrófono.", h3: "Canta o toca. La tinta eres tú, el azul es donde deberías estar.", h4: "Toca Guíame para oír cada nota y responderla.", hPriv: "Todo se queda en tu navegador. La página nunca graba ni envía tu sonido.", hAsk: "¿Qué haría esto mejor para ti?", hAsk2: "Cuéntanos en Instagram o en el sitio del estudio.", cadMe: "Yo", cadYou: "Tú", lbBpm: "Tempo", tap: "Tocar", tapClr: "borrar", tapHint: "Toca el pulso (un toque = una nota)", nl2: "Corta, 2 s", nl4: "Larga, 4 s", nl7: "Muy larga, 7 s", rgInst: "En el rango de mi voz / instrumento", rgAuto: "Donde tarareo", keyHum: "Según mi tarareo", browserOnly: "Solo el predeterminado del navegador",
   gVoice: "Voz", gStr: "Cuerdas", gWW: "Maderas", gBr: "Metales", gKeys: "Teclados e instrumentos en do",
   tPitch: "Altura", tMatch: "Comparar", tTones: "Armónicos", noteTones: "Las barras son los armónicos ideales. Rojo: los tuyos se salen de la línea.",
   hold: "Mantén en ±5¢", bestNone: "Tu mejor marca aparece aquí", best: "Mejor {0} s", foot: "Todo se queda en este dispositivo. El micrófono nunca graba.",
@@ -367,7 +375,7 @@ es: { tag: "Cómo suenas / cómo deberías sonar", listen: "Escuchar", stop: "De
 
 mr: { tag: "तुम्ही कसे ऐकू येता / कसे ऐकू यायला हवे", listen: "ऐका", stop: "थांबवा", guide: "मार्गदर्शन", guideStop: "मार्गदर्शन थांबवा",
   lbInst: "आवाज / वाद्य", lbKey: "की", lbScale: "स्केल", more: "अधिक", lbIn: "इनपुट (मायक्रोफोन)", lbOut: "आउटपुट (स्पीकर)", lbCs: "सानुकूल स्केल (सेमीटोनमध्ये)", lbNl: "स्वराची लांबी", lbRg: "गाइड कुठून सुरू व्हावा",
-  dMic: "डीफॉल्ट मायक्रोफोन", dSpk: "डीफॉल्ट स्पीकर", pSound: "ध्वनी", pPractice: "सराव", pLang: "भाषा", pHelp: "मदत", close: "बंद करा", h1: "तुमचा आवाज किंवा वाद्य, एक की आणि एक स्केल निवडा.", h2: "ऐका दाबा आणि मायक्रोफोनची परवानगी द्या.", h3: "गा किंवा वाजवा. शाई म्हणजे तुम्ही, निळा म्हणजे जिथे तुम्ही असायला हवे.", h4: "मार्गदर्शन दाबा, प्रत्येक स्वर ऐका आणि त्याला उत्तर द्या.", hPriv: "सर्व काही तुमच्या ब्राउझरमध्येच राहते. पेज तुमचा आवाज कधीही रेकॉर्ड किंवा पाठवत नाही.", hAsk: "हे तुमच्यासाठी आणखी चांगले कसे करता येईल?", hAsk2: "आम्हाला Instagram किंवा स्टुडिओ साइटवर सांगा.", lbBpm: "गती", tap: "टॅप करा", tapClr: "काढा", tapHint: "तालावर टॅप करा (एक टॅप = एक स्वर)", nl2: "लहान, 2 सेकंद", nl4: "लांब, 4 सेकंद", nl7: "खूप लांब, 7 सेकंद", rgInst: "माझ्या आवाजाची / वाद्याची रेंज", rgAuto: "माझ्या गुणगुणण्यापासून", keyHum: "माझ्या गुणगुणण्यावरून", browserOnly: "फक्त ब्राउझर डीफॉल्ट",
+  dMic: "डीफॉल्ट मायक्रोफोन", dSpk: "डीफॉल्ट स्पीकर", pSound: "ध्वनी", pPractice: "सराव", pLang: "भाषा", pHelp: "मदत", close: "बंद करा", h1: "तुमचा आवाज किंवा वाद्य, एक की आणि एक स्केल निवडा.", h2: "ऐका दाबा आणि मायक्रोफोनची परवानगी द्या.", h3: "गा किंवा वाजवा. शाई म्हणजे तुम्ही, निळा म्हणजे जिथे तुम्ही असायला हवे.", h4: "मार्गदर्शन दाबा, प्रत्येक स्वर ऐका आणि त्याला उत्तर द्या.", hPriv: "सर्व काही तुमच्या ब्राउझरमध्येच राहते. पेज तुमचा आवाज कधीही रेकॉर्ड किंवा पाठवत नाही.", hAsk: "हे तुमच्यासाठी आणखी चांगले कसे करता येईल?", hAsk2: "आम्हाला Instagram किंवा स्टुडिओ साइटवर सांगा.", cadMe: "मी", cadYou: "तुम्ही", lbBpm: "गती", tap: "टॅप करा", tapClr: "काढा", tapHint: "तालावर टॅप करा (एक टॅप = एक स्वर)", nl2: "लहान, 2 सेकंद", nl4: "लांब, 4 सेकंद", nl7: "खूप लांब, 7 सेकंद", rgInst: "माझ्या आवाजाची / वाद्याची रेंज", rgAuto: "माझ्या गुणगुणण्यापासून", keyHum: "माझ्या गुणगुणण्यावरून", browserOnly: "फक्त ब्राउझर डीफॉल्ट",
   gVoice: "आवाज", gStr: "तंतुवाद्ये", gWW: "सुषिर वाद्ये (वुडविंड)", gBr: "पितळी वाद्ये", gKeys: "कीबोर्ड आणि C वाद्ये",
   tPitch: "पिच", tMatch: "जुळवा", tTones: "ओव्हरटोन", noteTones: "पट्ट्या आदर्श ओव्हरटोन आहेत. लाल: तुमचे ओव्हरटोन रेषेपासून दूर आहेत.",
   hold: "±5¢ मध्ये टिकवा", bestNone: "तुमचा सर्वोत्तम निकाल इथे दिसेल", best: "सर्वोत्तम {0} s", foot: "सर्व काही याच डिव्हाइसवर राहते. मायक्रोफोन कधीही रेकॉर्ड करत नाही.",
@@ -489,12 +497,12 @@ function drawTrace(now) {
     const y = yOf(m, h); if (y < 14 || y > h - 14) continue;
     const ok = true, c = Math.abs(((m % 12) + 12) % 12) < 1e-6;
     if (ok && set()) { g.fillStyle = "rgba(69,169,215,.26)"; g.fillRect(L, y - 8, R - L, 16); }          // the way you should sound
-    if (same(S.gm, m)) { g.fillStyle = "rgba(69,169,215,.62)"; g.fillRect(L, y - 8, R - L, 16); g.fillStyle = INK; g.fillRect(L, y - 8, 5, 16); }
-    if (same(S.hover, m)) { g.fillStyle = "rgba(69,169,215,.5)"; g.fillRect(L, y - 8, R - L, 16); }
+    if (same(S.gm, m)) { g.fillStyle = "rgba(140,114,184,.7)"; g.fillRect(L, y - 8, R - L, 16); g.fillStyle = INK; g.fillRect(L, y - 8, 5, 16); }
+    if (same(S.hover, m)) { g.fillStyle = "rgba(140,114,184,.45)"; g.fillRect(L, y - 8, R - L, 16); }
     g.strokeStyle = c ? "rgba(26,32,64,.5)" : "rgba(26,32,64,.14)"; g.lineWidth = 1; g.beginPath(); g.moveTo(L, y + .5); g.lineTo(R, y + .5); g.stroke();
     if (ok) { g.fillStyle = INK; g.font = '500 11px ' + FONT; g.textAlign = "right"; g.globalAlpha = c ? 1 : .8; g.fillText(nameOf(m), L - 10, y); g.globalAlpha = 1; }
   }
-  if (S.gn != null && inScale(S.gn)) { const y = yOf(S.gn, h); g.save(); g.setLineDash([5, 4]); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(L + .75, y - 8, R - L - 1.5, 16); g.restore();
+  if (S.gn != null && inScale(S.gn)) { const y = yOf(S.gn, h); g.save(); g.setLineDash([5, 4]); g.strokeStyle = "rgba(26,32,64,.28)"; g.lineWidth = 1.5; g.strokeRect(L + .75, y - 8, R - L - 1.5, 16); g.restore();
     g.fillStyle = INK; g.font = '500 11px ' + FONT; g.textAlign = "left"; g.fillText(t("next") + " \u00b7 " + nameOf(S.gn), R + 8, y); }
   if (S.live) { const yv = yOf(S.m, h), ref = S.gm != null ? S.gm : S.target, st = Math.abs(Math.round(S.m - ref));
     const strip = (y0, up) => { g.fillStyle = RED; g.fillRect(L, y0, R - L, 20); g.fillStyle = "#fff"; g.font = '500 11px ' + FONT; g.textAlign = "left"; g.textBaseline = "middle";
@@ -652,7 +660,8 @@ function guideNote(m, d) {
   o.setPeriodicWave(warmWave(c)); o.frequency.value = hz; f.type = "lowpass"; f.Q.value = .7; f.frequency.setValueAtTime(Math.min(4000, hz * 8), t); f.frequency.linearRampToValueAtTime(Math.min(2200, hz * 4), t + d);
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .06); g.gain.setValueAtTime(.5, t + d - .2); g.gain.linearRampToValueAtTime(0, t + d);
   o.connect(f); f.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .1); }
-function stopGuide(msg) { S.gid++; S.gm = null; S.gn = null; $("#gd").textContent = t("guide"); $("#gd").className = "ghost"; if (msg) say(msg); }
+function phase(k, ms) { const c = $("#cad"), b = $("#cadb"); if (!k) { c.hidden = true; return; } c.hidden = false; c.dataset.p = k; b.style.transition = "none"; b.style.transform = "scaleX(1)"; void b.offsetWidth; b.style.transition = "transform " + ms + "ms linear"; b.style.transform = "scaleX(0)"; }
+function stopGuide(msg) { phase(null);  S.gid++; S.gm = null; S.gn = null; $("#gd").textContent = t("guide"); $("#gd").className = "ghost"; if (msg) say(msg); }
 async function guide() {
   if (S.gm != null || $("#gd").className === "on") return stopGuide(t("gStopped"));
   if (S.mode === "off") await listen(); if (S.mode === "off") return;
@@ -668,9 +677,9 @@ async function guide() {
   scoreDraw(0);
   for (let i = 0; i < S.gnotes.length; i++) {
     if (S.gid !== id) return; const m = S.gnotes[i]; S.gm = m; S.gn = S.gnotes[i + 1] != null ? S.gnotes[i + 1] : null; S.gacc = []; scoreDraw(i); say(t("listenTo", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
-    const d = noteLen(); S.mute = performance.now() + d * 1000 + 300; guideNote(m, d); await sleep(d * 1000 + 300); if (S.gid !== id) return; say(t("yourTurn", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
-    const t0 = performance.now(); let res;
-    while (performance.now() - t0 < (S.bpm ? d * 1000 : 2200 + d * 700)) { await sleep(60); if (S.gid !== id) return; const a = S.gacc.slice(-12);
+    const d = noteLen(); S.mute = performance.now() + d * 1000 + 300; phase("me", d * 1000 + 300); guideNote(m, d); await sleep(d * 1000 + 300); if (S.gid !== id) return; say(t("yourTurn", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
+    const t0 = performance.now(); let res; const win = S.bpm ? d * 1000 : 2200 + d * 700; phase("you", win);
+    while (performance.now() - t0 < win) { await sleep(60); if (S.gid !== id) return; const a = S.gacc.slice(-12);
       if (a.length >= 12 && a.every(d => Math.abs(d) <= 10)) { res = median(a); break; } }
     if (res === undefined) { const a = S.gacc.slice(-12); res = a.length >= 6 ? median(a) : null; }
     S.gres[i] = res; scoreDraw(i + 1); await sleep(250); }
@@ -728,6 +737,7 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
 
 // visual check without audio hardware: ?fake=-14 draws a believable moment
 const q = new URLSearchParams(location.search);
+if (q.has("cad")) { $("#cad").hidden = false; $("#cad").dataset.p = q.get("cad"); $("#cadb").style.transform = "scaleX(.6)"; }
 if (q.has("p")) { const b = document.querySelector('.rail button[data-p="' + q.get("p") + '"]'); if (b) b.click(); }
 if (q.has("v")) { const b = document.querySelector('.tabs button[data-v="' + q.get("v") + '"]'); if (b) b.click(); }
 if (q.has("inst")) { const o = [...$("#inst").options].findIndex(x => x.text === q.get("inst")); if (o >= 0) $("#inst").selectedIndex = o; }
