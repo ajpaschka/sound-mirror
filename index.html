@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#FAFAF4">
 <title>Sound Mirror</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* Paschka Studio: Gotham 400/500 only, ink on paper, studio-blue as graphic, studio-red as text and signal. */
 @font-face{font-family:"PS Gotham";font-weight:400;src:local("Gotham Book"),local("Gotham-Book")}
@@ -428,12 +429,15 @@ $("#dout").onchange = applySink;
 if (navigator.mediaDevices) { navigator.mediaDevices.addEventListener("devicechange", devices); devices(); }
 
 // ---- hear the target ----------------------------------------------------------------------------------------
+// A warm wave with harmonics 1..10 (each 1/n). A phone speaker cannot play a 110 Hz sine, but it plays the harmonics and the ear hears the pitch.
+function warmWave(c) { if (!S.ww || S.wwc !== c) { const N = 11, re = new Float32Array(N), im = new Float32Array(N); for (let n = 1; n < N; n++) im[n] = 1 / n; S.ww = c.createPeriodicWave(re, im); S.wwc = c; } return S.ww; }
 function play(midi) {
   getAct();
-  const c = S.act, t = c.currentTime, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), hz = toHz(midi - shift(), a4());
-  o.type = "sine"; o2.type = "triangle"; o.frequency.value = hz; o2.frequency.value = hz; g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(.16, t + .05); g.gain.setValueAtTime(.16, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.4);
-  const g2 = c.createGain(); g2.gain.value = .35; o.connect(g); o2.connect(g2); g2.connect(g); g.connect(c.destination); o.start(t); o2.start(t); o.stop(t + 1.5); o2.stop(t + 1.5);
+  const c = S.act, t = c.currentTime, o = c.createOscillator(), g = c.createGain(), hz = toHz(midi - shift(), a4());
+  o.setPeriodicWave(warmWave(c)); o.frequency.value = hz; g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(.5, t + .05); g.gain.setValueAtTime(.5, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.4);
+  const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = Math.min(4000, hz * 8); f.Q.value = .5;
+  o.connect(f); f.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 1.5);
   S.mute = performance.now() + 1900; say(tx("playing", nameOf(midi)));
 }
 
@@ -610,9 +614,8 @@ function scoreDraw(cur) { const el = $("#score"); el.innerHTML = ""; el.classNam
 function guideNote(m, d) {
   getAct();
   const c = S.act, t = c.currentTime, hz = toHz(m - shift(), a4()), o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
-  o.type = "sine"; o.frequency.value = hz; f.type = "lowpass"; f.Q.value = .7; f.frequency.setValueAtTime(hz * 4, t); f.frequency.linearRampToValueAtTime(hz * 1.6, t + d);
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t + .06); g.gain.setValueAtTime(.2, t + d - .2); g.gain.linearRampToValueAtTime(0, t + d);
-  if (hz < 190) { const o2 = c.createOscillator(), g2 = c.createGain(); o2.type = "sine"; o2.frequency.value = hz * 2; g2.gain.value = .3; o2.connect(g2); g2.connect(f); o2.start(t); o2.stop(t + d + .1); }
+  o.setPeriodicWave(warmWave(c)); o.frequency.value = hz; f.type = "lowpass"; f.Q.value = .7; f.frequency.setValueAtTime(Math.min(4000, hz * 8), t); f.frequency.linearRampToValueAtTime(Math.min(2200, hz * 4), t + d);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .06); g.gain.setValueAtTime(.5, t + d - .2); g.gain.linearRampToValueAtTime(0, t + d);
   o.connect(f); f.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .1); }
 function stopGuide(msg) { S.gid++; S.gm = null; S.gn = null; $("#gd").textContent = t("guide"); $("#gd").className = "ghost"; if (msg) say(msg); }
 async function guide() {
