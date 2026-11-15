@@ -103,6 +103,12 @@ button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
 .cad[data-p=you] .cy{opacity:1;background:var(--lav);color:var(--paper)}
 .cad i{position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--blue);transform-origin:left}
 @media(max-width:700px){.cad:not([hidden])~.sec .trw{min-height:70px}}
+.hints{margin-top:14px;border-top:2px solid var(--ink);padding-top:10px}.hints[hidden]{display:none}
+.hints h3{margin:0 0 6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.hints ul{list-style:none;margin:0;padding:0}.hints li{border-left:4px solid var(--lav);padding:2px 0 2px 12px;margin:0 0 12px}
+.hints li b{display:block;font-weight:500;font-size:15px}.hints li span{display:block;font-size:14px;opacity:.85;margin-top:2px}
+.hdis{margin:4px 0 0;font-size:12px;opacity:.7}
+.tph{margin:22px 0 0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}.tips{margin:8px 0 0;padding:0;list-style:none}.tips li{border-left:4px solid var(--lav);padding:2px 0 2px 12px;margin:0 0 12px;font-size:15px}
 /* ---- focus mode ---- */
 .fs.focus{background:var(--ink);overflow:hidden}
 .fimg{position:absolute;inset:0;overflow:hidden}
@@ -233,6 +239,7 @@ body.focus .cad{position:fixed;z-index:60;top:calc(60px + env(safe-area-inset-to
     <div class="cap">01 &nbsp;<span data-i="tPitch">Pitch</span></div>
     <div class="trw"><canvas id="tr" role="img" aria-label="Your pitch over the last six seconds against the notes you should hit"></canvas></div>
     <div class="score" id="score" aria-live="polite"></div>
+    <div class="hints" id="hints" hidden><h3 data-i="hHead">What we noticed</h3><ul id="hl"></ul><p class="hdis" data-i="hDis">These are patterns in the sound, not a diagnosis.</p></div>
     <div class="grid read">
       <div class="r1">
         <div class="num" id="num">--</div><div class="verdict" id="ver">&nbsp;</div>
@@ -263,6 +270,8 @@ body.focus .cad{position:fixed;z-index:60;top:calc(60px + env(safe-area-inset-to
 <div class="langs" id="langs"></div><select id="lang" hidden></select></div></section>
 <section class="fs" id="p-help" role="dialog" aria-modal="true" aria-labelledby="h-help" hidden><div class="fsw"><div class="fsh"><h2 id="h-help" data-i="pHelp">Help</h2><button type="button" class="x" aria-label="Close" data-ia="close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <ol class="how"><li data-i="h1">Choose your voice or instrument, a key and a scale.</li><li data-i="h2">Tap Listen and allow the microphone.</li><li data-i="h3">Sing or play. Ink is you, blue is where you should be.</li><li data-i="h4">Tap Guide me to hear each note and answer it.</li></ol>
+<h3 class="tph" data-i="tpHead">Voice tips</h3>
+<ul class="tips"><li data-i="tp1">Take a fuller breath and keep the air moving to the end of the note. Flat often goes with fading support.</li><li data-i="tp2">Soften the jaw, drop the tongue, loosen the neck. Sharp often goes with squeezing.</li><li data-i="tp3">Let the voice lighten into head voice instead of pushing chest voice higher.</li><li data-i="tp4">Many teachers use a lip trill or a straw hum for a few minutes.</li><li data-i="tp5">If you cannot hear yourself, you cannot correct. Use one earbud or sing closer to the speaker.</li></ul>
 <p class="priv" data-i="hPriv">Everything stays in your browser. The page never records or sends your sound.</p>
 <div class="ask"><b data-i="hAsk">What would make this better for you?</b><p data-i="hAsk2">Tell us on Instagram or on the studio site.</p>
 <a href="https://www.instagram.com/paschka_studio/" target="_blank" rel="noopener">Instagram <span>@paschka_studio</span></a>
@@ -328,7 +337,7 @@ const LANGS = { en: "English", es: "Español", pt: "Português", hi: "हिन�
 const TR = {
 en: { tag: "How you sound / how you should sound", listen: "Listen", stop: "Stop", guide: "Guide me", guideStop: "Stop guide",
   lbInst: "Voice / instrument", lbKey: "Key", lbScale: "Scale", more: "More", lbIn: "Input (microphone)", lbOut: "Output (speakers)", lbCs: "Custom scale, in semitones", lbNl: "Note length", lbRg: "Guide starts",
-  dMic: "Default microphone", dSpk: "Default speakers", pSound: "Sound", pPractice: "Practice", pLang: "Language", pHelp: "Help", close: "Close", h1: "Choose your voice or instrument, a key and a scale.", h2: "Tap Listen and allow the microphone.", h3: "Sing or play. Ink is you, blue is where you should be.", h4: "Tap Guide me to hear each note and answer it.", hPriv: "Everything stays in your browser. The page never records or sends your sound.", hAsk: "What would make this better for you?", hAsk2: "Tell us on Instagram or on the studio site.", cadMe: "Me", cadYou: "You", pFocus: "Focus", fPick: "Choose a picture", fHint: "Sing into tune to bring it into focus. Your picture stays on this device.", fBad: "That file did not open as a picture.", lbBpm: "Tempo", tap: "Tap tempo", tapClr: "Clear", tapHint: "Tap the beat (one tap = one note)", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
+  dMic: "Default microphone", dSpk: "Default speakers", pSound: "Sound", pPractice: "Practice", pLang: "Language", pHelp: "Help", close: "Close", h1: "Choose your voice or instrument, a key and a scale.", h2: "Tap Listen and allow the microphone.", h3: "Sing or play. Ink is you, blue is where you should be.", h4: "Tap Guide me to hear each note and answer it.", hPriv: "Everything stays in your browser. The page never records or sends your sound.", hAsk: "What would make this better for you?", hAsk2: "Tell us on Instagram or on the studio site.", cadMe: "Me", cadYou: "You", pFocus: "Focus", fPick: "Choose a picture", fHint: "Sing into tune to bring it into focus. Your picture stays on this device.", fBad: "That file did not open as a picture.", hHead: "What we noticed", hDis: "These are patterns in the sound, not a diagnosis.", hMiss: "{0} of {1} notes had no clear pitch.", tMiss: "Start each note with a gentle breath and keep it going. Check that the mic is close and the room is quiet.", hSag: "On {0} notes your pitch sagged while you held them.", tSag: "Sagging often means the air pressure is fading. Keep the ribs wide and send the air steadily to the end of the note.", hRise: "On {0} notes your pitch crept up while you held them.", tRise: "Creeping up often means squeezing. Let the note settle, relax the jaw and do not add push.", hFlat: "You ran flat by about {0}¢ on average.", tFlat: "Flat often goes with running low on breath support. Take a fuller breath and keep the air moving through the whole note.", hSharp: "You ran sharp by about {0}¢ on average.", tSharp: "Sharp often goes with tension in the jaw, tongue or throat. Soften the jaw, drop the tongue and sing the note a little lighter.", hHilo: "Your higher notes were about {0}¢ flatter than your lower ones.", tHilo: "Going up, voices often lose support or change register. Keep the breath steady and let the voice lighten into head voice instead of pushing.", hWob: "Your pitch moved more than usual inside notes (about {0}¢).", tWob: "A wobbly hold often means uneven breath. Many teachers use a quiet lip trill or a straw hum on the same note, then sing it again.", hGood: "Steady and in tune on {0} of {1} notes.", tGood: "Try a longer note length or a wider scale.", tpHead: "Voice tips", tp1: "Breath. Take a fuller breath and keep the air moving to the end of the note. Flat often goes with fading support.", tp2: "Relax. Soften the jaw, drop the tongue, loosen the neck. Sharp often goes with squeezing.", tp3: "Lighter going up. Let the voice lighten into head voice instead of pushing chest voice higher.", tp4: "Warm up. Many teachers use a lip trill or a straw hum for a few minutes.", tp5: "Hear yourself. If you cannot hear yourself, you cannot correct. Use one earbud or sing closer to the speaker.", lbBpm: "Tempo", tap: "Tap tempo", tapClr: "Clear", tapHint: "Tap the beat (one tap = one note)", nl2: "Short, 2 s", nl4: "Long, 4 s", nl7: "Very long, 7 s", rgInst: "My voice / instrument range", rgAuto: "Where I hum", keyHum: "From my hum", browserOnly: "Browser default only",
   gVoice: "Voice", gStr: "Strings", gWW: "Woodwinds", gBr: "Brass", gKeys: "Keys and C instruments",
   tPitch: "Pitch", tMatch: "Match", tTones: "Overtones", noteTones: "Bars are the ideal overtones. Red: yours land off the line.",
   hold: "Hold within ±5¢", bestNone: "Your best shows here", best: "Best {0} s", foot: "Everything stays on this machine. The mic is never recorded.",
@@ -678,6 +687,22 @@ function guideNote(m, d) {
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .06); g.gain.setValueAtTime(.5, t + d - .2); g.gain.linearRampToValueAtTime(0, t + d);
   o.connect(f); f.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .1); }
 function phase(k, ms) { const c = $("#cad"), b = $("#cadb"); if (!k) { c.hidden = true; return; } c.hidden = false; c.dataset.p = k; b.style.transition = "none"; b.style.transform = "scaleX(1)"; void b.offsetWidth; b.style.transition = "transform " + ms + "ms linear"; b.style.transform = "scaleX(0)"; }
+// pattern hints: what the guide run showed, with a common cause. Thresholds are guesses.
+function noteStats(a) { if (a.length < 12) return null; const k = Math.floor(a.length / 3), m = x => x.reduce((p, c) => p + c, 0) / x.length, last = a.slice(-12), mu = m(last);
+  return { drift: m(a.slice(-k)) - m(a.slice(0, k)), sd: Math.sqrt(m(last.map(v => (v - mu) ** 2))) }; }
+function makeHints() {
+  const res = S.gres, n = S.gnotes.length, got = res.map((r, i) => r == null ? null : { r, m: S.gnotes[i], st: S.gst[i] }).filter(Boolean), out = [];
+  const miss = n - got.length; if (miss >= Math.max(2, n * .25)) out.push(["hMiss", [miss, n], "tMiss"]);
+  const sag = got.filter(g => g.st && g.st.drift <= -8).length, rise = got.filter(g => g.st && g.st.drift >= 8).length, lim = Math.max(2, got.length * .25);
+  if (sag >= lim) out.push(["hSag", [sag], "tSag"]); else if (rise >= lim) out.push(["hRise", [rise], "tRise"]);
+  const med = median(got.map(g => g.r)); if (got.length >= 4) { if (med <= -10) out.push(["hFlat", [Math.round(-med)], "tFlat"]); else if (med >= 10) out.push(["hSharp", [Math.round(med)], "tSharp"]); }
+  const ms = got.map(g => g.m).sort((a, b) => a - b), mid = ms[Math.floor(ms.length / 2)], hi = got.filter(g => g.m > mid), lo = got.filter(g => g.m < mid), avg = x => x.reduce((p, c) => p + c.r, 0) / x.length;
+  if (hi.length >= 2 && lo.length >= 2 && avg(lo) - avg(hi) >= 12) out.push(["hHilo", [Math.round(avg(lo) - avg(hi))], "tHilo"]);
+  const wob = got.filter(g => g.st && g.st.sd >= 15); if (wob.length >= lim) out.push(["hWob", [Math.round(wob.reduce((p, g) => p + g.st.sd, 0) / wob.length)], "tWob"]);
+  if (!out.length) { const ok = got.filter(g => Math.abs(g.r) <= 10).length; out.push(["hGood", [ok, n], "tGood"]); }
+  return out.slice(0, 3); }
+function showHints() { const h = makeHints(); $("#hl").innerHTML = ""; h.forEach(([a, args, b]) => { const li = document.createElement("li"), x = document.createElement("b"), y = document.createElement("span"); x.textContent = t(a, ...args); y.textContent = t(b); li.append(x, y); $("#hl").appendChild(li); });
+  $("#hints").hidden = false; try { $("#hints").scrollIntoView({ block: "nearest" }); } catch (e) {} }
 function stopGuide(msg) { phase(null);  S.gid++; S.gm = null; S.gn = null; $("#gd").textContent = t("guide"); $("#gd").className = "ghost"; if (msg) say(msg); }
 async function guide() {
   if (S.gm != null || $("#gd").className === "on") return stopGuide(t("gStopped"));
@@ -690,7 +715,7 @@ async function guide() {
     if (!c) { say(t("noHum")); c = 58; await sleep(1200); } else if (keyHum) { S.hr = ((Math.round(c) % 12) + 12) % 12; say(t("keySet", NAMES[S.hr])); await sleep(900); } else c -= 1; }
   else c = loOf() + shift() + 7;
   if (S.gid !== id) return; const r = root(); let m0 = Math.round(c); while (((m0 - r) % 12 + 12) % 12) m0--;
-  const up = [...iv.map(i => m0 + i), m0 + 12]; S.gnotes = [...up, ...up.slice(0, -1).reverse()]; S.gres = []; S.gm = S.gnotes[0];
+  const up = [...iv.map(i => m0 + i), m0 + 12]; S.gnotes = [...up, ...up.slice(0, -1).reverse()]; S.gres = []; S.gst = []; $("#hints").hidden = true; S.gm = S.gnotes[0];
   scoreDraw(0);
   for (let i = 0; i < S.gnotes.length; i++) {
     if (S.gid !== id) return; const m = S.gnotes[i]; S.gm = m; S.gn = S.gnotes[i + 1] != null ? S.gnotes[i + 1] : null; S.gacc = []; scoreDraw(i); say(t("listenTo", nameOf(m), S.gn != null ? t("nextN", nameOf(S.gn)) : t("last")));
@@ -699,8 +724,8 @@ async function guide() {
     while (performance.now() - t0 < win) { await sleep(60); if (S.gid !== id) return; const a = S.gacc.slice(-12);
       if (a.length >= 12 && a.every(d => Math.abs(d) <= 10)) { res = median(a); break; } }
     if (res === undefined) { const a = S.gacc.slice(-12); res = a.length >= 6 ? median(a) : null; }
-    S.gres[i] = res; scoreDraw(i + 1); await sleep(250); }
-  S.gm = null; S.gn = null; const ok = S.gres.filter(d => d != null && Math.abs(d) <= 10).length; stopGuide(t("result", ok, S.gnotes.length));
+    S.gres[i] = res; S.gst[i] = noteStats(S.gacc); scoreDraw(i + 1); await sleep(250); }
+  S.gm = null; S.gn = null; const ok = S.gres.filter(d => d != null && Math.abs(d) <= 10).length; showHints(); stopGuide(t("result", ok, S.gnotes.length));
 }
 $("#gd").onclick = () => guide();
 try { S.best = +localStorage.getItem("sm_best") || 0; } catch (e) {}
@@ -741,7 +766,7 @@ $("#lang").onchange = () => applyLang($("#lang").value);
 // side rail: four full-screen menus
 let lastRail = null;
 function closeFs() { document.body.classList.remove("focus"); document.querySelectorAll(".fs").forEach(p => p.hidden = true); document.body.style.overflow = ""; if (lastRail) lastRail.focus(); }
-document.querySelectorAll(".rail button").forEach(b => b.onclick = () => { closeFs(); document.body.classList.toggle("focus", b.dataset.p === "focus"); lastRail = b; const p = $("#p-" + b.dataset.p); p.hidden = false; document.body.style.overflow = "hidden"; p.scrollTop = 0; p.querySelector(".x").focus(); });
+document.querySelectorAll(".rail button").forEach(b => b.onclick = () => { closeFs(); document.body.classList.toggle("focus", b.dataset.p === "focus"); lastRail = b; const p = $("#p-" + b.dataset.p); p.hidden = false; document.body.style.overflow = "hidden"; p.scrollTop = 0; p.querySelector(".x").focus({ preventScroll: true }); });
 document.querySelectorAll(".fs .x").forEach(b => b.onclick = closeFs);
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeFs(); });
 function markLang(l) { $("#langs").innerHTML = ""; Object.entries(LANGS).forEach(([k, n]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = n; b.setAttribute("aria-pressed", k === l); b.onclick = () => { applyLang(k); closeFs(); }; $("#langs").appendChild(b); }); }
@@ -798,6 +823,7 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
 
 // visual check without audio hardware: ?fake=-14 draws a believable moment
 const q = new URLSearchParams(location.search);
+if (q.has("hints")) { S.gnotes = [58, 60, 62, 63, 65, 67, 69, 70, 69, 67, 65, 63, 62, 60, 58]; S.gres = [-4, -8, -12, -14, -16, -20, -24, -28, -22, -18, null, -12, -8, -6, -4]; S.gst = S.gres.map((r, i) => r == null ? null : { drift: -11, sd: i % 2 ? 9 : 17 }); S.gm = null; scoreDraw(15); showHints(); }
 if (q.has("cad")) { $("#cad").hidden = false; $("#cad").dataset.p = q.get("cad"); $("#cadb").style.transform = "scaleX(.6)"; }
 if (q.has("p")) { const b = document.querySelector('.rail button[data-p="' + q.get("p") + '"]'); if (b) b.click(); }
 if (q.has("v")) { const b = document.querySelector('.tabs button[data-v="' + q.get("v") + '"]'); if (b) b.click(); }
