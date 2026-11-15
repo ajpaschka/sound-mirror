@@ -109,8 +109,8 @@ button,.tabs button{touch-action:manipulation}#tr{touch-action:manipulation}
 .fimg img{width:100%;height:100%;object-fit:cover;transform:scale(1.12);will-change:filter;filter:blur(22px)}
 .fs.focus .fx{position:absolute;top:calc(8px + env(safe-area-inset-top));left:8px;z-index:2;color:var(--paper);background:rgba(26,32,64,.6)}
 .fpickb{position:absolute;top:calc(8px + env(safe-area-inset-top));right:8px;z-index:2;min-height:44px;padding:0 14px;background:rgba(26,32,64,.6);color:var(--paper);border:2px solid var(--paper);font:500 12px var(--font);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
-.fhud{position:absolute;left:0;right:0;bottom:calc(var(--dock,76px) + 12px);padding:10px 16px;background:rgba(26,32,64,.62);color:var(--paper);z-index:2}
-.fhud p{margin:4px 0 0;font-size:12px;opacity:.85}
+.fhud{position:absolute;left:0;right:0;bottom:calc(var(--dock,76px) + 12px);padding:10px 16px;background:rgba(26,32,64,.74);color:var(--paper);z-index:2}
+.fhud p{margin:4px 0 0;font-size:12px;opacity:.85}#fov{display:block;width:100%;height:104px;margin-bottom:8px}
 .fr{display:flex;align-items:baseline;gap:16px}.fr b{font-size:34px;font-weight:500;letter-spacing:-.02em;min-width:2.6em}.fr span:last-child{margin-left:auto;font-size:20px;font-weight:500}.fr span{font-size:16px}
 body.focus .dock{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;gap:10px;background:var(--paper);border-top:2px solid var(--ink);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 body.focus .dock button{min-height:56px;font-size:15px;padding:0 12px}body.focus #go{flex:2}body.focus #gd{flex:1}
@@ -269,7 +269,7 @@ body.focus .cad{position:fixed;z-index:60;top:calc(60px + env(safe-area-inset-to
 <a href="https://paschkastudio.com" target="_blank" rel="noopener">Web <span>paschkastudio.com</span></a></div></div></section>
 <section class="fs focus" id="p-focus" role="dialog" aria-modal="true" aria-label="Focus" hidden><div class="fimg"><img id="fimg" alt=""></div>
 <button type="button" class="x fx" aria-label="Close" data-ia="close"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><button type="button" class="fpickb" id="fpickb" data-i="fPick">Choose a picture</button><input type="file" id="fpic" accept="image/*" hidden>
-<div class="fhud"><div class="fr"><b id="fnum">--</b><span id="fnote"></span><span id="fhold">0.0 s</span></div><p data-i="fHint">Sing into tune to bring it into focus. Your picture stays on this device.</p></div></section>
+<div class="fhud"><canvas id="fov" aria-hidden="true"></canvas><div class="fr"><b id="fnum">--</b><span id="fnote"></span><span id="fhold">0.0 s</span></div><p data-i="fHint">Sing into tune to bring it into focus. Your picture stays on this device.</p></div></section>
   <footer><span class="cap">Paschka Studio</span><span class="dim" data-i="foot">Everything stays on this machine. The mic is never recorded.</span></footer>
 </div>
 
@@ -728,7 +728,7 @@ function beat(now) {
   if (S.live) S.humT = now;
   document.body.classList.toggle('hum', S.humT != null && now - S.humT < 2500);
   tDraw = now; const vis = c => c.clientWidth > 0 && c.clientHeight > 0;      // phone views hide canvases; skip them
-  if (vis(tr)) drawTrace(now); if (vis(sp)) drawSpectrum(); if (vis($("#ci"))) drawRing(now); if (vis($("#st"))) drawStaff(); readout(); focusTick();
+  if (vis(tr)) drawTrace(now); if (vis(sp)) drawSpectrum(); if (vis($("#ci"))) drawRing(now); if (vis($("#st"))) drawStaff(); readout(); focusTick(now);
 }
 requestAnimationFrame(beat);
 
@@ -750,8 +750,24 @@ function markLang(l) { $("#langs").innerHTML = ""; Object.entries(LANGS).forEach
 let fb = 22, fw = -1, fmax = 22;
 function fSize() { fmax = Math.max(12, Math.round(Math.min(innerWidth, innerHeight) * .055)); }
 fSize(); addEventListener("resize", fSize);
-function focusTick() {
+function drawFov(now) {
+  const [g, w, h] = fit($("#fov")); g.clearRect(0, 0, w, h); if (!w) return;
+  const W = 60, yOf2 = d => h / 2 - Math.max(-W, Math.min(W, d)) / W * (h / 2 - 6), L = 6, R = w - 44, T0 = now - T, xOf = t => L + (t - T0) / T * (R - L);
+  const devOf = m => S.gm != null ? (() => { let d = ((m - S.gm) * 100) % 1200; if (d >= 600) d -= 1200; if (d < -600) d += 1200; return d; })() : (m - snap(m, root(), set())) * 100;
+  g.fillStyle = "rgba(140,114,184,.55)"; g.fillRect(L, yOf2(5), R - L, yOf2(-5) - yOf2(5));                      // the in-tune zone, +-5 cents
+  g.strokeStyle = "rgba(250,250,244,.22)"; g.lineWidth = 1; for (const d of [-40, -20, 20, 40]) { g.beginPath(); g.moveTo(L, yOf2(d) + .5); g.lineTo(R, yOf2(d) + .5); g.stroke(); }
+  g.fillStyle = PAPER; g.globalAlpha = .75; g.font = '500 11px ' + FONT; g.textAlign = "left"; g.textBaseline = "middle"; g.fillText("\u25B2", R + 10, 12); g.fillText("\u25BC", R + 10, h - 12); g.globalAlpha = 1;
+  g.strokeStyle = PAPER; g.lineWidth = 3; g.lineJoin = "round"; g.lineCap = "round"; let prev = null; g.beginPath();
+  for (const p of S.pts) { if (p.t < T0) continue; const x = xOf(p.t), y = yOf2(devOf(p.m)); if (prev && p.t - prev.t < 260) g.lineTo(x, y); else g.moveTo(x, y); prev = p; }
+  g.stroke();
+  if (S.live && prev) { const d = devOf(S.m), bad = Math.abs(d) > 5, x = xOf(prev.t), y = yOf2(d);
+    g.fillStyle = bad ? "#FF5C84" : BLUE; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill(); g.strokeStyle = PAPER; g.lineWidth = 2; g.stroke();
+    g.fillStyle = bad ? "#FF5C84" : PAPER; g.font = '500 12px ' + FONT; g.textAlign = "left"; g.textBaseline = "top"; g.fillText(!bad ? t("inTune") : d > 0 ? t("sharp") : t("flat"), L + 4, 4); }
+  else { g.fillStyle = PAPER; g.globalAlpha = .6; g.font = '500 12px ' + FONT; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(S.mode === "off" ? t("waitStart") : t("waitClear"), (L + R) / 2, h / 2); g.globalAlpha = 1; }
+}
+function focusTick(now) {
   if (!document.body.classList.contains("focus")) return;
+  drawFov(now);
   if (S.gm != null && performance.now() < S.mute) return;                  // Me phase: hold the picture where it is
   let e = null, sd = 0;
   if (S.live) { if (S.gm != null) { sd = ((S.m - S.gm) * 100) % 1200; if (sd >= 600) sd -= 1200; if (sd < -600) sd += 1200; } else sd = S.cents; e = Math.abs(sd); }
