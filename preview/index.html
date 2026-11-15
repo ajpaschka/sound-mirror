@@ -860,6 +860,7 @@ function skEnd() { sk.phase = "end"; skSaveBest(sk.l, sk.hits); skCard(t("skyEnd
 function skFrame(now) {
   const cv = $("#sky"); if (!cv.clientWidth) return;
   const [g, W, H] = fit(cv), C = sk.C, L = sk.L, dt = Math.min(.05, (now - (sk.last || now)) / 1000); sk.last = now;
+  if (S.ctx && S.ctx.state === "suspended" && S.ctx.resume) { try { S.ctx.resume(); } catch (e) {} }
   const ax = W * .24, yOf = m => H * .84 - (m - C.lo) / (C.hi - C.lo) * H * .66, pps = L ? (W * .92 - ax) / (L.lead * 1000) : 0, spp = H * .66 / (C.hi - C.lo);
   let mm = null; if (S.live && now >= S.mute) mm = S.m - 12 * Math.round((S.m - C.mid) / 12);
   if (mm != null) sk.am += (Math.max(C.lo, Math.min(C.hi, mm)) - sk.am) * Math.min(1, dt * 14); else sk.am = Math.max(C.lo, sk.am - 1.4 * dt);
@@ -917,11 +918,11 @@ function fMode(m) { const p = $("#p-focus"); p.dataset.mode = m; document.queryS
 document.querySelectorAll("#fmode button").forEach(b => b.onclick = () => fMode(b.dataset.m));
 
 // kaleidoscope: a hypnotic fractal that spins off pitch and locks in when you hold the note in the middle. The notes go round the circle of fifths.
-const KTOL = 15, KHOLD = .8, KPAL = [LAV, STRAW, BLUE, PAPER, "#FFC857"];
+const KTOL = 20, KHOLD = .6, KPAL = [LAV, STRAW, BLUE, PAPER, "#FFC857"];
 let kl = { on: false, phase: "menu", i: 0, locks: 0, acc: 0, rot: 0, spd: .1, chaos: .5, parts: [], seq: [], m: 60, tl: 0, wedge: null };
 const kFold = d => { d %= 1200; if (d >= 600) d -= 1200; if (d < -600) d += 1200; return d; };
 function klSeq() { const r = root(), base = loOf() + shift() + 4; return Array.from({ length: 12 }, (_, i) => { const pc = (r + 7 * i) % 12; return { pc, m: base + (((pc - base) % 12) + 12) % 12 }; }); }
-function klPlay() { try { S.mute = performance.now() + 1350; guideNote(kl.m, 1.1); } catch (e) {} }
+function klPlay() { try { kl.noLock = performance.now() + 1300; guideNote(kl.m, 1.1); } catch (e) {} }
 function klMenu() { kl.phase = "menu"; kl.i = 0; kl.locks = 0; kl.acc = 0; kl.parts = [];
   skCard(t("kalTitle"), t("kalHow"), [[t("kalStart"), "", klStart]]); }
 async function klStart() {
@@ -944,11 +945,12 @@ function klFrame(now) {
   const cv = $("#kal"); if (!cv.clientWidth) return;
   const [g, W, H] = fit(cv), dt = Math.min(.05, (now - (kl.last || now)) / 1000); kl.last = now;
   const cx = W / 2, cy = (H - 76) * .52 + 30, R = Math.min(W * .62, (H - 150) * .56), N = 12, a = Math.PI / 6, tm = now / 1000;
-  let d = null; if (S.live && now >= S.mute) d = kFold((S.m - kl.m) * 100);
-  const run = kl.phase === "run", inTol = run && d != null && Math.abs(d) <= KTOL;
+  if (S.ctx && S.ctx.state === "suspended" && S.ctx.resume) { try { S.ctx.resume(); } catch (e) {} }
+  let d = null; if (S.live) d = kFold((S.m - kl.m) * 100);
+  const run = kl.phase === "run", inTol = run && now >= (kl.noLock || 0) && d != null && Math.abs(d) <= KTOL;
   const ct = kl.phase === "lock" || kl.phase === "done" ? 0 : d == null ? .55 : Math.min(1, Math.abs(d) / 50);
   kl.chaos += (ct - kl.chaos) * Math.min(1, dt * 5);
-  if (run) kl.acc = inTol ? kl.acc + dt : Math.max(0, kl.acc - dt * 2);
+  if (run) kl.acc = inTol ? kl.acc + dt : Math.max(0, kl.acc - dt * 1.5);
   if (run && kl.acc >= KHOLD) { kl.phase = "lock"; kl.tl = now; kl.locks++; kl.acc = 0; klBurst(40, 260); try { S.mute = performance.now() + 900; guideNote(kl.m + 12, .6); } catch (e) {} }
   if (kl.phase === "lock" && now - kl.tl > 2400) { if (kl.i >= 11) { kl.phase = "done"; kl.td = now; try { kl.seq.map(x => x.m).sort((p, q) => p - q).forEach((m, i) => setTimeout(() => { try { guideNote(m, .5); } catch (e) {} }, i * 130)); S.mute = performance.now() + 2200; } catch (e) {} }
     else { kl.i++; kl.m = kl.seq[kl.i].m; kl.phase = "run"; kl.acc = 0; setTimeout(klPlay, 250); } }
@@ -976,7 +978,8 @@ function klFrame(now) {
   g.restore();
   // words
   g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = PAPER;
-  if (run) { g.font = '500 14px ' + FONT; g.globalAlpha = .85; g.fillText(t("kalTap"), W / 2, cy + R * 1.02 + 18); g.globalAlpha = 1; }
+  if (run) { g.font = '500 14px ' + FONT; g.globalAlpha = .85; g.fillText(t("kalTap"), W / 2, cy + R * 1.02 + 18); g.globalAlpha = 1;
+    g.font = '500 17px ' + FONT; g.fillStyle = d == null ? "rgba(250,250,244,.55)" : Math.abs(d) <= KTOL ? BLUE : PAPER; g.fillText(d == null ? "\u2014" : t("you", nameOf(Math.round(S.m))) + "  " + (d > 0 ? "+" : d < 0 ? "\u2212" : "") + Math.abs(Math.round(d)) + "\u00a2", W / 2, cy + R * 1.02 + 46); g.fillStyle = PAPER; }
   if (kl.phase === "lock") { g.font = '800 ' + Math.round(Math.min(W / 9, 44)) + 'px ' + FONT; g.fillStyle = "#FFC857"; g.fillText(t("kalLock"), W / 2, 150); }
   if (kl.phase === "done") { g.font = '800 ' + Math.round(Math.min(W / 9, 48)) + 'px ' + FONT; g.fillStyle = PAPER; g.globalAlpha = Math.min(1, (now - kl.td) / 800); g.fillText(t("kalDone"), W / 2, 150); g.globalAlpha = 1; }
   if (kl.phase !== "menu") { g.font = '500 16px ' + FONT; g.textAlign = "right"; g.fillStyle = PAPER; g.fillText(Math.min(12, kl.locks) + " / 12", W - 14, 28); }
